@@ -1,0 +1,6 @@
+[package]
+name = "wannabe_key_genarator"
+version = "0.1.0"
+authors = ["Todoroki <todoroki.auone@gmail.com>"]
+
+[dependencies]
