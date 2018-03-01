@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::BigUint;
+use self::num::{BigUint, Integer};
 use self::num::pow;
 use super::point;
 use super::point::PointFrom;
@@ -16,6 +16,9 @@ pub use self::secp256r1::Secp256r1;
 pub trait ECCurve {
    /// Return an copy of the curve.
    fn new() -> Self;
+
+   /// Return the curve friendly name.
+   fn name(&self) -> &str;
 
    /// Return the field `p` value where `E: y2 = x3 + ax + b over Fp`
    fn p(&self) -> BigUint;
@@ -66,16 +69,23 @@ pub trait ECCurvePoint<P: point::Point>: ECCurve {
                x: point_x,
                y: point_y,
             } = AffinePoint::convert_from(&point, &self.p());
-            println!("{:x} {:x}", point_x, point_y);
 
-            let left = pow(point_y.clone(), 2);
-            let right = pow(point_x.clone(), 3) + self.a() * point_x.clone() + self.b();
+            let left = pow(point_y.clone(), 2).mod_floor(&self.p());
+            let right = (pow(point_x.clone(), 3) + self.a() * point_x.clone() + self.b())
+               .mod_floor(&self.p());
+
+            /* -- DEBUG -- */
+            println!(
+               "Calculating y^2 mod Fp = x^3 + ax + b mod Fp on {} ...",
+               self.name()
+            );
+            println!("  LEFT:  {:x}", left);
+            println!("  RIGHT: {:x}", right);
+            /* -- DEBUG -- */
 
             if left == right {
                Ok(ECCValue::Point(point))
             } else {
-               println!("LEFT:  {:x}", left);
-               println!("RIGHT: {:x}", right);
                Err(point::ConvertionError)
             }
          },

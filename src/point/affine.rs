@@ -24,8 +24,8 @@ pub struct AffinePoint {
 }
 
 impl AffinePoint {
-   fn to_uncompressed(&self) -> String { return format!("04{:x}{:x}", self.x, self.y); }
-   fn to_compressed(&self) -> String {
+   pub fn to_uncompressed(&self) -> String { return format!("04{:x}{:x}", self.x, self.y); }
+   pub fn to_compressed(&self) -> String {
       return if self.y.is_even() {
          format!("02{:x}", self.x)
       } else {

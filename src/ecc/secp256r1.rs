@@ -61,6 +61,9 @@ impl ECCurve for Secp256r1 {
    fn new() -> Secp256r1 { return Secp256r1 {}; }
 
    #[inline]
+   fn name(&self) -> &str { "Secp256r1" }
+
+   #[inline]
    fn p(&self) -> BigUint { return Self::p(); }
 
    #[inline]
