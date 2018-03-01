@@ -112,7 +112,7 @@ impl PointFrom<AffinePoint> for JacobianPoint {
       JacobianPoint {
          x: point.x.clone(),
          y: point.y.clone(),
-         z: BigUint::from(0_u8),
+         z: BigUint::from(1_u8),
       }
    }
 }

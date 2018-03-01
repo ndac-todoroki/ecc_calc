@@ -66,11 +66,14 @@ impl Point for AffinePoint {}
 impl PointFrom<JacobianPoint> for AffinePoint {
    fn convert_from(jacob: &JacobianPoint, p: &BigUint) -> AffinePoint {
       let pm2 = p.clone() - BigUint::from(2_u8);
-      let inv_z = if jacob.z.clone() == BigUint::from(1_u8) {
+      let inv_z: BigUint = if jacob.z.clone() == BigUint::from(0_u8) {
+         panic!("Zero division!")
+      } else if jacob.z.clone() == BigUint::from(1_u8) {
          BigUint::from(1_u8)
       } else {
          jacob.z.clone().modpow(&pm2, &p.clone())
       };
+
       AffinePoint {
          x: jacob.x.clone() * inv_z.clone() * inv_z.clone(),
          y: jacob.y.clone() * inv_z.clone() * inv_z.clone() * inv_z.clone(),
