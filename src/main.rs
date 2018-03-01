@@ -7,9 +7,11 @@ extern crate simple_logger;
 // test data http://point-at-infinity.org/ecc/nisttv
 
 fn main() {
-   use module::affine::{AffinePoint, NewPoint};
-   use module::jacobian::JacobianPoint;
-   use module::ecc::{ECCValue, ECCurve, ECCurvePoint, Secp256r1};
+   use module::ecc::prime::points::affine::{AffinePoint, NewPoint as NewAffine};
+   use module::ecc::prime::points::jacobian::{JacobianPoint, NewPoint as NewJacobian};
+   use module::ecc::prime::ECCurvePoint;
+   use module::ecc::prime::curves::{ECCurve, Secp256r1};
+   use module::ecc::ECCValue;
    use std::error::Error;
 
    simple_logger::init().unwrap();
@@ -24,53 +26,41 @@ fn main() {
    println!("{:x}", point);
 
    let curve = Secp256r1::new();
-   let value = ECCValue::from(point);
+   // let value = ECCValue::from(point);
 
    println!("\n{}", "Check if point is on curve");
-   match curve.point_is_on_curve(value.clone()) {
-      Ok(value) => {
-         match value {
-            ECCValue::Point(p) => {
-               println!("{:X}", p);
-            },
-            ECCValue::Infinity(i) => println!("inf: {:?}", i),
-         }
+   match curve.point_is_on_curve(&point) {
+      true => {
+         println!("{:X}", point);
       },
-      Err(err) => println!("Could not parse {:?}", err.cause()),
+      false => println!("Could not parse {:?}", point),
    }
 
    println!("\n{}", "Affine -> Jacobian");
-   let jacob = curve.convert_point_to::<JacobianPoint>(value.clone());
-   let aff = curve.convert_point_to::<AffinePoint>(jacob.clone().unwrap());
-   match jacob {
+   let jacob = curve.convert_point_to::<JacobianPoint>(&point);
+   match jacob.clone() {
       Ok(value) => {
-         match value {
-            ECCValue::Point(p) => {
-               println!("{:X}", p);
-            },
-            ECCValue::Infinity(i) => println!("inf: {:?}", i),
-         }
+         println!("{:X}", value);
       },
       Err(err) => println!("Could not parse {:?}", err.cause()),
    }
 
    println!("\n{}", "Affine -> Jacobian -> Affine");
+   let aff = curve.convert_point_to::<AffinePoint>(&jacob.unwrap());
    match aff {
       Ok(value) => {
-         match value {
-            ECCValue::Point(p) => {
-               println!("{:X}", p);
-            },
-            ECCValue::Infinity(i) => println!("inf: {:?}", i),
-         }
+         println!("{:X}", value);
       },
       Err(err) => println!("Could not parse {:?}", err.cause()),
    }
 
-   // let point = Point::try_from("1234",
-   // "ffffff_fffffff_fffff_fffffffffff_fffff", 16); let point2 =
-   // Point::try_from("1234", "ffffffffffffffffffffffffffffffffff", 16);
+   // Jacobian
 
-   // println!("{:?}", point);
-   // println!("{:?}", point2);
+   let point2 = JacobianPoint::try_new(
+      "2b11cb945c8cf152ffa4c9c2b1c965b019b35d0b7626919ef0ae6cb9d232f8af",
+      "6d333da42e30f7011245b6281015ded14e0f100968e758a1b6c3c083afc14ea0",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      16,
+   ).unwrap();
+   let point3 = point2.clone();
 }

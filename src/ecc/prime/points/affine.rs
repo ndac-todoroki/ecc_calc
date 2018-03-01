@@ -3,17 +3,14 @@ extern crate num;
 use self::num::BigUint;
 use self::num::bigint::ParseBigIntError;
 use self::num::Num;
-use self::num::pow;
 use self::num::Integer;
 
 use std;
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{Point, PointFrom, PointInto};
-use super::jacobian::JacobianPoint;
-use super::Infinity;
-use super::super::ecc::ECCurve;
+use super::{JacobianPoint, Point, PointFrom};
+use super::super::super::ECCValue;
 
 /// The `AffinePoint` struct represents a certain point on the elliptic curve,
 /// which are also called _Affine Coordinate_ Points.
@@ -23,16 +20,7 @@ pub struct AffinePoint {
    pub y: BigUint,
 }
 
-impl AffinePoint {
-   pub fn to_uncompressed(&self) -> String { return format!("04{:x}{:x}", self.x, self.y); }
-   pub fn to_compressed(&self) -> String {
-      return if self.y.is_even() {
-         format!("02{:x}", self.x)
-      } else {
-         format!("03{:x}", self.x)
-      };
-   }
-}
+impl AffinePoint {}
 
 /* -- Formatter impls -- */
 impl fmt::Display for AffinePoint {
@@ -85,9 +73,25 @@ impl PointFrom<AffinePoint> for AffinePoint {
    fn convert_from(point: &AffinePoint, _i: &BigUint) -> Self { point.clone() }
 }
 
-impl TryFrom<Infinity> for AffinePoint {
+impl TryFrom<ECCValue> for AffinePoint {
    type Error = super::ConvertionError;
-   fn try_from(_: Infinity) -> Result<Self, Self::Error> { return Err(super::ConvertionError); }
+
+   fn try_from(value: ECCValue) -> Result<Self, Self::Error> {
+      use self::ECCValue::{Finite, Infinity};
+      match value {
+         Finite { x, y } => Ok(AffinePoint { x, y }),
+         Infinity => Err(super::ConvertionError),
+      }
+   }
+}
+
+impl From<AffinePoint> for ECCValue {
+   fn from(point: AffinePoint) -> ECCValue {
+      ECCValue::Finite {
+         x: point.x.clone(),
+         y: point.y.clone(),
+      }
+   }
 }
 /* -- Point Convertion impls -- */
 

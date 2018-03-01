@@ -1,11 +1,13 @@
 extern crate num;
 
 use self::num::{BigUint, Num};
-use self::num::pow;
 
-use super::{ECCurve, ECCurvePoint, ECCurvePointError};
-use super::super::point::affine::{AffinePoint, NewPoint};
-use super::super::point;
+use super::super::ECCurvePoint;
+use super::super::points;
+use self::points::Point;
+use self::points::affine::{AffinePoint, NewPoint};
+use super::super::curves::ECCurve;
+use ecc::ECCValue;
 
 /// filed `p` where `E: y2 = x3 + ax + b over Fp`
 const P: &str = "FFFFFFFF_00000001_00000000_00000000_00000000_FFFFFFFF_FFFFFFFF_FFFFFFFF";
@@ -54,7 +56,7 @@ impl Secp256r1 {
    #[inline]
    fn base_point() -> AffinePoint {
       // We know this will succeed.
-      return AffinePoint::try_new(Gx, Gy, 16).unwrap();
+      AffinePoint::try_new(Gx, Gy, 16).unwrap()
    }
 }
 
@@ -81,7 +83,7 @@ impl ECCurve for Secp256r1 {
    fn base_point(&self) -> AffinePoint { return Self::base_point(); }
 }
 
-impl<P: point::Point> ECCurvePoint<P> for Secp256r1 {}
+impl<P: Point> ECCurvePoint<P> for Secp256r1 {}
 // impl ECCurvePoint<point::affine::AffinePoint> for Secp256r1 {}
 // impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256r1 {}
 

@@ -1,22 +1,14 @@
-extern crate num;
-
-use self::num::BigUint;
-
+use super::super::prime;
 use std::fmt;
-use std::marker::Sized;
-use std::clone::Clone;
+use super::num::BigUint;
 
-pub mod affine;
-pub mod jacobian;
-mod infinity;
-pub use self::infinity::Infinity;
+pub trait PointCalculation {
+   type Curve: prime::ECCurve;
 
-mod errors;
-pub use self::errors::convertion::ConvertionError;
+   /// Returns a function that takes a curve and return the result point.
+   fn point_addition(&Self, &Self, &Self::Curve) -> Self;
+}
 
-/// ## trait Point
-/// defines basic methods points must implement.
-/// Points should be displayable
 pub trait Point
    : fmt::Debug + fmt::Display + fmt::LowerHex + fmt::UpperHex + Clone {
    // fn point_at_infinity() -> Self;
@@ -40,3 +32,12 @@ where
 {
    fn convert_into(&self, i: &BigUint) -> U { U::convert_from(self, &i) }
 }
+
+pub mod affine;
+pub mod jacobian;
+
+pub use self::affine::AffinePoint;
+pub use self::jacobian::JacobianPoint;
+
+mod errors;
+pub use self::errors::convertion::ConvertionError;

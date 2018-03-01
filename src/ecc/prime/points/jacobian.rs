@@ -3,18 +3,11 @@ extern crate num;
 use self::num::BigUint;
 use self::num::bigint::ParseBigIntError;
 use self::num::Num;
-use self::num::pow;
 
-use super::{Point, PointFrom, PointInto};
-
-use std::ops::Add;
-use std::cmp::PartialEq;
-use std::marker::Sized;
 use std::fmt;
-use std::convert::TryFrom;
 
-use super::affine::AffinePoint;
-use super::Infinity;
+use super::{AffinePoint, Point, PointFrom, PointInto};
+use super::super::super::ECCValue;
 
 #[derive(Debug, Clone)]
 /// Jacobian Coordinates are used to represent elliptic curve points on prime curves
@@ -26,40 +19,53 @@ pub struct JacobianPoint {
 }
 
 impl JacobianPoint {
-   // TODO: Remove this and use struct `ECCurve`'s value.
-   fn a() -> BigUint {
-      return BigUint::from_str_radix(
-         "FFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC",
-         16,
-      ).unwrap();
-   }
+   // fn add(&self, other: &JacobianPoint) -> JacobianPoint {
+   //    let u1 = self.x.clone() * pow(other.z.clone(), 2);
+   //    let u2 = other.x.clone() * pow(self.z.clone(), 2);
+   //    let s1 = self.y.clone() * pow(other.z.clone(), 3);
+   //    let s2 = other.y.clone() * pow(self.z.clone(), 3);
 
-   /// JacobianPoint::from(Infinity{})
-   fn point_at_infinity() -> JacobianPoint {
-      JacobianPoint {
-         x: BigUint::from(0_usize),
-         y: BigUint::from(0_usize),
-         z: BigUint::from(0_usize),
-      }
-   }
+   //    if u1 == u2 {
+   //       if s1 != s2 {
+   //          return JacobianPoint::point_at_infinity();
+   //       } else {
+   //          return self.double();
+   //       }
+   //    }
 
-   fn double(&self) -> JacobianPoint {
-      if self.y == BigUint::from(0_u8) {
-         return JacobianPoint::point_at_infinity();
-      }
+   //    let h = u1.clone() - u2.clone();
+   //    let r = s2.clone() - s1.clone();
+   // let x3 = pow(r.clone(), 2) - pow(h.clone(), 3) - 2_usize * u1.clone() *
+   // pow(h.clone(), 2); let y3 = r.clone() * (u1 * pow(h.clone(), 2) -
+   // x3.clone()) - s1.clone() * pow(h.clone(), 3); let z3 = h.clone() *
+   // self.z.clone() * other.z.clone();
 
-      let s = 4_usize * self.x.clone() * pow(self.y.clone(), 2);
-      let m = 3_usize * pow(self.x.clone(), 2) + JacobianPoint::a() * pow(self.z.clone(), 4);
-      let x = pow(m.clone(), 2) - 2_usize * s.clone();
-      println!("s {}, x {}", s, x);
-      let y1 = m.clone() * (s.clone() - x.clone());
-      let y2 = 8_usize * pow(self.y.clone(), 4);
-      println!("y1 {}, y2 {}", y1, y2);
-      let y = y1 - y2;
-      let z = 2_usize * self.y.clone() * self.z.clone();
+   //    return JacobianPoint {
+   //       x: x3,
+   //       y: y3,
+   //       z: z3,
+   //    };
+   // }
 
-      return JacobianPoint { x, y, z };
-   }
+   // fn double(&self) -> JacobianPoint {
+   //    if self.y == BigUint::from(0_u8) {
+   //       return JacobianPoint::point_at_infinity();
+   //    }
+
+   //    let s = 4_usize * self.x.clone() * pow(self.y.clone(), 2);
+   // let m = 3_usize * pow(self.x.clone(), 2) + JacobianPoint::a() *
+   // pow(self.z.clone(), 4); let x = pow(m.clone(), 2) - 2_usize *
+   // s.clone();    println!("s {}, x {}", s, x);
+   //    let y1 = m.clone() * (s.clone() - x.clone());
+   //    let y2 = 8_usize * pow(self.y.clone(), 4);
+   //    println!("y1 {}, y2 {}", y1, y2);
+   //    let y = y1 - y2;
+   //    let z = 2_usize * self.y.clone() * self.z.clone();
+
+   //    return JacobianPoint { x, y, z };
+   // }
+
+   fn z_is_zero(&self) -> bool { self.z == BigUint::from(0_u8) }
 }
 
 /* -- Formatter impls -- */
@@ -121,10 +127,26 @@ impl PointFrom<JacobianPoint> for JacobianPoint {
    fn convert_from(point: &JacobianPoint, _i: &BigUint) -> JacobianPoint { point.clone() }
 }
 
-impl TryFrom<Infinity> for JacobianPoint {
-   type Error = super::ConvertionError;
-   fn try_from(_: Infinity) -> Result<Self, Self::Error> {
-      return Ok(JacobianPoint::point_at_infinity());
+impl From<ECCValue> for JacobianPoint {
+   fn from(val: ECCValue) -> JacobianPoint {
+      use self::ECCValue::{Finite, Infinity};
+
+      match val {
+         Finite { x, y } => {
+            JacobianPoint {
+               x,
+               y,
+               z: BigUint::from(1_u8),
+            }
+         },
+         Infinity => {
+            JacobianPoint {
+               x: BigUint::from(0_u8),
+               y: BigUint::from(0_u8),
+               z: BigUint::from(0_u8),
+            }
+         },
+      }
    }
 }
 /* -- Point Convertion impls -- */
@@ -149,37 +171,6 @@ impl NewPoint<&'static str, u32> for JacobianPoint {
          (Ok(x), Ok(y), Ok(z)) => Ok(JacobianPoint { x, y, z }),
          _ => Err(ParseBigIntError::Other),
       }
-   }
-}
-
-impl<'a> Add for &'a JacobianPoint {
-   type Output = JacobianPoint;
-
-   fn add(self, other: &JacobianPoint) -> JacobianPoint {
-      let u1 = self.x.clone() * pow(other.z.clone(), 2);
-      let u2 = other.x.clone() * pow(self.z.clone(), 2);
-      let s1 = self.y.clone() * pow(other.z.clone(), 3);
-      let s2 = other.y.clone() * pow(self.z.clone(), 3);
-
-      if u1 == u2 {
-         if s1 != s2 {
-            return JacobianPoint::point_at_infinity();
-         } else {
-            return self.double();
-         }
-      }
-
-      let h = u1.clone() - u2.clone();
-      let r = s2.clone() - s1.clone();
-      let x3 = pow(r.clone(), 2) - pow(h.clone(), 3) - 2_usize * u1.clone() * pow(h.clone(), 2);
-      let y3 = r.clone() * (u1 * pow(h.clone(), 2) - x3.clone()) - s1.clone() * pow(h.clone(), 3);
-      let z3 = h.clone() * self.z.clone() * other.z.clone();
-
-      return JacobianPoint {
-         x: x3,
-         y: y3,
-         z: z3,
-      };
    }
 }
 
