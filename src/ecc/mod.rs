@@ -5,8 +5,8 @@ use self::num::pow;
 use super::point;
 use super::point::PointFrom;
 use super::point::affine::AffinePoint;
-use std::marker::Sized;
-use std::any;
+// use std::marker::Sized;
+// use std::any;
 use std::convert::TryFrom;
 
 mod secp256r1;
@@ -39,7 +39,7 @@ pub trait ECCurve {
 /// Value wil be defined as
 /// - a point on curve
 /// - infinity (not a point)
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum ECCValue<P: point::Point> {
    Point(P),
    Infinity(point::Infinity),
