@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::BigUint;
+use self::num::BigInt;
 use self::num::bigint::ParseBigIntError;
 use self::num::Num;
 
@@ -13,9 +13,9 @@ use super::super::super::ECCValue;
 /// Jacobian Coordinates are used to represent elliptic curve points on prime curves
 /// `y^2 = x^3 + ax + b`.
 pub struct JacobianPoint {
-   pub x: BigUint,
-   pub y: BigUint,
-   pub z: BigUint,
+   pub x: BigInt,
+   pub y: BigInt,
+   pub z: BigInt,
 }
 
 impl JacobianPoint {
@@ -48,7 +48,7 @@ impl JacobianPoint {
    // }
 
    // fn double(&self) -> JacobianPoint {
-   //    if self.y == BigUint::from(0_u8) {
+   //    if self.y == BigInt::from(0_u8) {
    //       return JacobianPoint::point_at_infinity();
    //    }
 
@@ -65,7 +65,7 @@ impl JacobianPoint {
    //    return JacobianPoint { x, y, z };
    // }
 
-   fn z_is_zero(&self) -> bool { self.z == BigUint::from(0_u8) }
+   fn z_is_zero(&self) -> bool { self.z == BigInt::from(0_u8) }
 }
 
 /* -- Formatter impls -- */
@@ -114,17 +114,17 @@ impl Point for JacobianPoint {}
 
 /* -- Point Convertion impls -- */
 impl PointFrom<AffinePoint> for JacobianPoint {
-   fn convert_from(point: &AffinePoint, _i: &BigUint) -> JacobianPoint {
+   fn convert_from(point: &AffinePoint, _i: &BigInt) -> JacobianPoint {
       JacobianPoint {
          x: point.x.clone(),
          y: point.y.clone(),
-         z: BigUint::from(1_u8),
+         z: BigInt::from(1_u8),
       }
    }
 }
 
 impl PointFrom<JacobianPoint> for JacobianPoint {
-   fn convert_from(point: &JacobianPoint, _i: &BigUint) -> JacobianPoint { point.clone() }
+   fn convert_from(point: &JacobianPoint, _i: &BigInt) -> JacobianPoint { point.clone() }
 }
 
 impl From<ECCValue> for JacobianPoint {
@@ -136,14 +136,14 @@ impl From<ECCValue> for JacobianPoint {
             JacobianPoint {
                x,
                y,
-               z: BigUint::from(1_u8),
+               z: BigInt::from(1_u8),
             }
          },
          Infinity => {
             JacobianPoint {
-               x: BigUint::from(0_u8),
-               y: BigUint::from(0_u8),
-               z: BigUint::from(0_u8),
+               x: BigInt::from(0_u8),
+               y: BigInt::from(0_u8),
+               z: BigInt::from(0_u8),
             }
          },
       }
@@ -163,9 +163,9 @@ impl NewPoint<&'static str, u32> for JacobianPoint {
    type Error = ParseBigIntError;
 
    fn try_new(s1: &str, s2: &str, s3: &str, base: u32) -> Result<Self, Self::Error> {
-      let x = BigUint::from_str_radix(s1, base);
-      let y = BigUint::from_str_radix(s2, base);
-      let z = BigUint::from_str_radix(s3, base);
+      let x = BigInt::from_str_radix(s1, base);
+      let y = BigInt::from_str_radix(s2, base);
+      let z = BigInt::from_str_radix(s3, base);
 
       match (x, y, z) {
          (Ok(x), Ok(y), Ok(z)) => Ok(JacobianPoint { x, y, z }),
@@ -176,7 +176,7 @@ impl NewPoint<&'static str, u32> for JacobianPoint {
 
 impl PartialEq for JacobianPoint {
    fn eq(&self, other: &Self) -> bool {
-      let i = BigUint::from(0_u8);
+      let i = BigInt::from(0_u8);
       AffinePoint::convert_from(self, &i) == other.convert_into(&i)
    }
 }

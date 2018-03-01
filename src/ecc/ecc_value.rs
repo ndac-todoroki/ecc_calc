@@ -1,5 +1,5 @@
 extern crate num;
-use self::num::{BigUint, Integer};
+use self::num::{BigInt, Integer};
 use super::infinity_error::InfinityError;
 
 /// Value wil be defined as
@@ -7,7 +7,7 @@ use super::infinity_error::InfinityError;
 /// - infinity (not a point)
 #[derive(Debug, Clone)]
 pub enum ECCValue {
-   Finite { x: BigUint, y: BigUint },
+   Finite { x: BigInt, y: BigInt },
    Infinity,
 }
 

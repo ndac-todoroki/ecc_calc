@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::{BigUint, Num};
+use self::num::{BigInt, Num};
 
 use super::super::ECCurvePoint;
 use super::super::points;
@@ -30,27 +30,27 @@ pub struct Secp256r1 {}
 
 impl Secp256r1 {
    #[inline]
-   fn p() -> BigUint {
+   fn p() -> BigInt {
       // We know this will succeed.
-      return BigUint::from_str_radix(P, 16).unwrap();
+      return BigInt::from_str_radix(P, 16).unwrap();
    }
 
    #[inline]
-   fn a() -> BigUint {
+   fn a() -> BigInt {
       // We know this will succeed.
-      return BigUint::from_str_radix(A, 16).unwrap();
+      return BigInt::from_str_radix(A, 16).unwrap();
    }
 
    #[inline]
-   fn b() -> BigUint {
+   fn b() -> BigInt {
       // We know this will succeed.
-      return BigUint::from_str_radix(B, 16).unwrap();
+      return BigInt::from_str_radix(B, 16).unwrap();
    }
 
    #[inline]
-   fn n() -> BigUint {
+   fn n() -> BigInt {
       // We know this will succeed.
-      return BigUint::from_str_radix(N, 16).unwrap();
+      return BigInt::from_str_radix(N, 16).unwrap();
    }
 
    #[inline]
@@ -68,16 +68,16 @@ impl ECCurve for Secp256r1 {
    fn name(&self) -> &str { "Secp256r1" }
 
    #[inline]
-   fn p(&self) -> BigUint { return Self::p(); }
+   fn p(&self) -> BigInt { return Self::p(); }
 
    #[inline]
-   fn a(&self) -> BigUint { return Self::a(); }
+   fn a(&self) -> BigInt { return Self::a(); }
 
    #[inline]
-   fn b(&self) -> BigUint { return Self::b(); }
+   fn b(&self) -> BigInt { return Self::b(); }
 
    #[inline]
-   fn n(&self) -> BigUint { return Self::n(); }
+   fn n(&self) -> BigInt { return Self::n(); }
 
    #[inline]
    fn base_point(&self) -> AffinePoint { return Self::base_point(); }

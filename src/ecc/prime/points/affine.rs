@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::BigUint;
+use self::num::BigInt;
 use self::num::bigint::ParseBigIntError;
 use self::num::Num;
 use self::num::Integer;
@@ -16,8 +16,8 @@ use super::super::super::ECCValue;
 /// which are also called _Affine Coordinate_ Points.
 #[derive(Debug, Clone, PartialEq)]
 pub struct AffinePoint {
-   pub x: BigUint,
-   pub y: BigUint,
+   pub x: BigInt,
+   pub y: BigInt,
 }
 
 impl AffinePoint {}
@@ -52,12 +52,12 @@ impl Point for AffinePoint {}
 
 /* -- Point Convertion impls -- */
 impl PointFrom<JacobianPoint> for AffinePoint {
-   fn convert_from(jacob: &JacobianPoint, p: &BigUint) -> AffinePoint {
-      let pm2 = p.clone() - BigUint::from(2_u8);
-      let inv_z: BigUint = if jacob.z.clone() == BigUint::from(0_u8) {
+   fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
+      let pm2 = p.clone() - BigInt::from(2_u8);
+      let inv_z: BigInt = if jacob.z.clone() == BigInt::from(0_u8) {
          panic!("Zero division!")
-      } else if jacob.z.clone() == BigUint::from(1_u8) {
-         BigUint::from(1_u8)
+      } else if jacob.z.clone() == BigInt::from(1_u8) {
+         BigInt::from(1_u8)
       } else {
          jacob.z.clone().modpow(&pm2, &p.clone())
       };
@@ -70,7 +70,7 @@ impl PointFrom<JacobianPoint> for AffinePoint {
 }
 
 impl PointFrom<AffinePoint> for AffinePoint {
-   fn convert_from(point: &AffinePoint, _i: &BigUint) -> Self { point.clone() }
+   fn convert_from(point: &AffinePoint, _i: &BigInt) -> Self { point.clone() }
 }
 
 impl TryFrom<ECCValue> for AffinePoint {
@@ -107,9 +107,9 @@ impl NewPoint<&'static str, u32> for AffinePoint {
    type Error = ParseBigIntError;
 
    fn try_new(s1: &str, s2: &str, base: u32) -> Result<Self, Self::Error> {
-      match BigUint::from_str_radix(s1, base) {
+      match BigInt::from_str_radix(s1, base) {
          Ok(u1) => {
-            match BigUint::from_str_radix(s2, base) {
+            match BigInt::from_str_radix(s2, base) {
                Ok(u2) => Ok(AffinePoint { x: u1, y: u2 }),
                Err(err) => Err(err),
             }
@@ -123,9 +123,9 @@ impl NewPoint<String, u32> for AffinePoint {
    type Error = ParseBigIntError;
 
    fn try_new(s1: String, s2: String, base: u32) -> Result<Self, Self::Error> {
-      match BigUint::from_str_radix(&s1, base) {
+      match BigInt::from_str_radix(&s1, base) {
          Ok(u1) => {
-            match BigUint::from_str_radix(&s2, base) {
+            match BigInt::from_str_radix(&s2, base) {
                Ok(u2) => Ok(AffinePoint { x: u1, y: u2 }),
                Err(err) => Err(err),
             }
