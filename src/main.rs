@@ -1,4 +1,4 @@
-extern crate wannabe_key_generator as module;
+extern crate ecc_calculator as module;
 
 #[macro_use]
 extern crate log;

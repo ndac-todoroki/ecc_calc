@@ -53,6 +53,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ecc_calculator"
+version = "0.1.0"
+dependencies = [
+ "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ring 0.13.0-alpha",
+ "simple_logger 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "untrusted 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "either"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -258,17 +269,6 @@ dependencies = [
 name = "untrusted"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "wannabe_key_generator"
-version = "0.1.0"
-dependencies = [
- "log 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "num 0.1.42 (registry+https://github.com/rust-lang/crates.io-index)",
- "ring 0.13.0-alpha",
- "simple_logger 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "untrusted 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "winapi"
