@@ -1,6 +1,10 @@
 [package]
-name = "wannabe_key_genarator"
+name = "wannabe_key_generator"
 version = "0.1.0"
 authors = ["Todoroki <todoroki.auone@gmail.com>"]
 
 [dependencies]
+# ring = { git = "https://github.com/simula-labs/ring", branch = "master" }
+ring = {path = "/home/todoroki/RustProjects/ring_simula"}
+untrusted = "0.6"
+num = "0.1"
