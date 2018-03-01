@@ -2,8 +2,7 @@ extern crate num;
 
 use self::num::BigInt;
 use self::num::bigint::ParseBigIntError;
-use self::num::Num;
-use self::num::Integer;
+use self::num::{Integer, Num, Zero};
 
 use std;
 use std::fmt;
@@ -54,7 +53,7 @@ impl Point for AffinePoint {}
 impl PointFrom<JacobianPoint> for AffinePoint {
    fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
       let pm2 = p.clone() - BigInt::from(2_u8);
-      let inv_z: BigInt = if jacob.z.clone() == BigInt::from(0_u8) {
+      let inv_z: BigInt = if jacob.z.is_zero() {
          panic!("Zero division!")
       } else if jacob.z.clone() == BigInt::from(1_u8) {
          BigInt::from(1_u8)

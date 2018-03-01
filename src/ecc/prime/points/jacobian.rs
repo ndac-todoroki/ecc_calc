@@ -1,8 +1,7 @@
 extern crate num;
 
-use self::num::BigInt;
+use self::num::{BigInt, Num, Zero};
 use self::num::bigint::ParseBigIntError;
-use self::num::Num;
 
 use std::fmt;
 
@@ -48,7 +47,7 @@ impl JacobianPoint {
    // }
 
    // fn double(&self) -> JacobianPoint {
-   //    if self.y == BigInt::from(0_u8) {
+   //    if self.y.is_zero() {
    //       return JacobianPoint::point_at_infinity();
    //    }
 
@@ -64,8 +63,6 @@ impl JacobianPoint {
 
    //    return JacobianPoint { x, y, z };
    // }
-
-   fn z_is_zero(&self) -> bool { self.z == BigInt::from(0_u8) }
 }
 
 /* -- Formatter impls -- */
@@ -141,9 +138,9 @@ impl From<ECCValue> for JacobianPoint {
          },
          Infinity => {
             JacobianPoint {
-               x: BigInt::from(0_u8),
-               y: BigInt::from(0_u8),
-               z: BigInt::from(0_u8),
+               x: BigInt::zero(),
+               y: BigInt::zero(),
+               z: BigInt::zero(),
             }
          },
       }
@@ -176,7 +173,7 @@ impl NewPoint<&'static str, u32> for JacobianPoint {
 
 impl PartialEq for JacobianPoint {
    fn eq(&self, other: &Self) -> bool {
-      let i = BigInt::from(0_u8);
+      let i = BigInt::zero();
       AffinePoint::convert_from(self, &i) == other.convert_into(&i)
    }
 }
