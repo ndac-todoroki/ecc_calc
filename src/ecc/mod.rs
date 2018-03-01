@@ -75,12 +75,12 @@ pub trait ECCurvePoint<P: point::Point>: ECCurve {
                .mod_floor(&self.p());
 
             /* -- DEBUG -- */
-            println!(
-               "Calculating y^2 mod Fp = x^3 + ax + b mod Fp on {} ...",
+            info!(
+               "Calculating y^2 mod p = x^3 + ax + b mod p on {} ...",
                self.name()
             );
-            println!("  LEFT:  {:x}", left);
-            println!("  RIGHT: {:x}", right);
+            debug!("  LEFT:  {:x}", left);
+            debug!("  RIGHT: {:x}", right);
             /* -- DEBUG -- */
 
             if left == right {
