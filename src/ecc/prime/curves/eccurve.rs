@@ -2,7 +2,8 @@ extern crate num;
 
 use self::num::BigInt;
 use super::super::ECCValue;
-use ecc::prime::points::AffinePoint;
+use ecc::prime::points::{AffinePoint, Point, PointCalculation};
+use std;
 
 /// Implement basic curve related functions and lookups.
 pub trait ECCurve {
@@ -29,4 +30,16 @@ pub trait ECCurve {
 
    // /// decode "04.." "03.." "02.." into point.
    // fn decode_public_key(&self, String) -> Result<ECCValue, ParseError>
+}
+
+pub trait ECCurveCalculation<P>: ECCurve
+where
+   P: PointCalculation<Self>,
+   Self: std::marker::Sized,
+{
+   fn add_points(&self, former: &P, latter: &P) -> P {
+      PointCalculation::point_addition(self, former, latter)
+   }
+
+   fn double_point(&self, point: &P) -> P { PointCalculation::point_doublation(self, point) }
 }

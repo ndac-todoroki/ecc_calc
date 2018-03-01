@@ -6,7 +6,7 @@ use super::super::ECCurvePoint;
 use super::super::points;
 use self::points::Point;
 use self::points::affine::{AffinePoint, NewPoint};
-use super::super::curves::ECCurve;
+use super::super::curves::{ECCurve, ECCurveCalculation};
 use ecc::ECCValue;
 
 /// filed `p` where `E: y2 = x3 + ax + b over Fp`
@@ -86,6 +86,8 @@ impl ECCurve for Secp256r1 {
 impl<P: Point> ECCurvePoint<P> for Secp256r1 {}
 // impl ECCurvePoint<point::affine::AffinePoint> for Secp256r1 {}
 // impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256r1 {}
+
+impl ECCurveCalculation<points::JacobianPoint> for Secp256r1 {}
 
 #[cfg(test)]
 #[allow(unused_qualifications)]

@@ -1,11 +1,12 @@
 extern crate num;
 
-use self::num::{BigInt, Num, Zero};
+use self::num::{pow, BigInt, Integer, Num, Zero};
 use self::num::bigint::ParseBigIntError;
+use super::super::curves::ECCurve;
 
 use std::fmt;
 
-use super::{AffinePoint, Point, PointFrom, PointInto};
+use super::{AffinePoint, Point, PointCalculation, PointFrom, PointInto};
 use super::super::super::ECCValue;
 
 #[derive(Debug, Clone)]
@@ -48,7 +49,7 @@ impl JacobianPoint {
 
    // fn double(&self) -> JacobianPoint {
    //    if self.y.is_zero() {
-   //       return JacobianPoint::point_at_infinity();
+   //       return JacobianPoint::from(ECCValue::Infinity);
    //    }
 
    //    let s = 4_usize * self.x.clone() * pow(self.y.clone(), 2);
@@ -63,6 +64,75 @@ impl JacobianPoint {
 
    //    return JacobianPoint { x, y, z };
    // }
+}
+
+impl<Curve> PointCalculation<Curve> for JacobianPoint
+where
+   Curve: ECCurve,
+{
+   /// Returns a function that takes a curve and return the result point.
+   fn point_addition(curve: &Curve, former: &Self, latter: &Self) -> Self {
+      let u1 = former.x.clone() * pow(latter.z.clone(), 2);
+      let u2 = latter.x.clone() * pow(former.z.clone(), 2);
+      let s1 = former.y.clone() * pow(latter.z.clone(), 3);
+      let s2 = latter.y.clone() * pow(former.z.clone(), 3);
+
+      let u1 = u1.mod_floor(&curve.p());
+      let u2 = u2.mod_floor(&curve.p());
+      let s1 = s1.mod_floor(&curve.p());
+      let s2 = s2.mod_floor(&curve.p());
+
+      debug!("u1: {:x}, u2: {:x}", u1, u2);
+      if u1 == u2 {
+         debug!("u1: {:x}, u2: {:x}", s1, s2);
+         if s1 != s2 {
+            return JacobianPoint::from(ECCValue::Infinity);
+         } else {
+            return Self::point_doublation(curve, former);
+         }
+      }
+
+      let h = u1.clone() - u2.clone();
+      let r = s2.clone() - s1.clone();
+
+      let x = pow(r.clone(), 2) - pow(h.clone(), 3) - 2_usize * u1.clone() * pow(h.clone(), 2);
+      let x = x.mod_floor(&curve.p());
+
+      let y = r.clone() * (u1 * pow(h.clone(), 2) - x.clone()) - s1.clone() * pow(h.clone(), 3);
+      let y = y.mod_floor(&curve.p());
+
+      let z = h.clone() * former.z.clone() * latter.z.clone();
+      let z = z.mod_floor(&curve.p());
+
+      return JacobianPoint { x, y, z };
+   }
+
+   fn point_doublation(curve: &Curve, point: &Self) -> Self {
+      if point.y.is_zero() {
+         return JacobianPoint::from(ECCValue::Infinity);
+      }
+
+      let s = 4_usize * point.x.clone() * pow(point.y.clone(), 2);
+      let s = s.mod_floor(&curve.p());
+
+      let m = 3_usize * pow(point.x.clone(), 2) + curve.a() * pow(point.z.clone(), 4);
+      let m = m.mod_floor(&curve.p());
+
+      let x = pow(m.clone(), 2) - 2_usize * s.clone();
+      let x = x.mod_floor(&curve.p());
+      debug!("s {}, x {}", s, x);
+
+      let y1 = m.clone() * (s.clone() - x.clone());
+      let y2 = 8_usize * pow(point.y.clone(), 4);
+      debug!("y1 {}, y2 {}", y1, y2);
+      let y = y1 - y2;
+      let y = y.mod_floor(&curve.p());
+
+      let z = 2_usize * point.y.clone() * point.z.clone();
+      let z = z.mod_floor(&curve.p());
+
+      return JacobianPoint { x, y, z };
+   }
 }
 
 /* -- Formatter impls -- */

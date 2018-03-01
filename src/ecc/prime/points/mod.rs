@@ -2,19 +2,16 @@ use super::super::prime;
 use std::fmt;
 use super::num::BigInt;
 
-pub trait PointCalculation {
-   type Curve: prime::ECCurve;
-
-   /// Returns a function that takes a curve and return the result point.
-   fn point_addition(&Self, &Self, &Self::Curve) -> Self;
-
-   fn point_doublation(&Self, &Self, &Self::Curve) -> Self;
-}
-
 pub trait Point
    : fmt::Debug + fmt::Display + fmt::LowerHex + fmt::UpperHex + Clone {
    // fn point_at_infinity() -> Self;
    // fn double() -> Self;
+}
+
+pub trait PointCalculation<Curve: prime::ECCurve>: Point {
+   fn point_addition(&Curve, &Self, &Self) -> Self;
+
+   fn point_doublation(&Curve, &Self) -> Self;
 }
 
 pub trait PointFrom<P: Point>: Point {

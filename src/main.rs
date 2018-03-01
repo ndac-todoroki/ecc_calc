@@ -10,7 +10,7 @@ fn main() {
    use module::ecc::prime::points::affine::{AffinePoint, NewPoint as NewAffine};
    use module::ecc::prime::points::jacobian::{JacobianPoint, NewPoint as NewJacobian};
    use module::ecc::prime::ECCurvePoint;
-   use module::ecc::prime::curves::{ECCurve, Secp256r1};
+   use module::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256r1};
    use module::ecc::ECCValue;
    use std::error::Error;
 
@@ -54,7 +54,13 @@ fn main() {
       Err(err) => println!("Could not parse {:?}", err.cause()),
    }
 
-   // Jacobian
+   // Jacobian addition test
+   /*
+   # G + G == 2*G
+   a = 18905f76a53755c679fb732b7762251075ba95fc5fedb60179e730d418a9143c, 8571ff1825885d85d2e88688dd21f3258b4ab8e4ba19e45cddf25357ce95560a, 00000000fffffffeffffffffffffffffffffffff000000000000000000000001
+   b = 18905f76a53755c679fb732b7762251075ba95fc5fedb60179e730d418a9143c, 8571ff1825885d85d2e88688dd21f3258b4ab8e4ba19e45cddf25357ce95560a, 00000000fffffffeffffffffffffffffffffffff000000000000000000000001
+   r = f6bb32e43dcf3a3b732205038d1490d9aa6ae3c1a433827d850046d410ddd64d, 78c577510a5b8a3b19a8fb0e92042dbe152cd7cbeb236ff82f3648d361bee1a5
+   */
 
    let point2 = JacobianPoint::try_new(
       "2b11cb945c8cf152ffa4c9c2b1c965b019b35d0b7626919ef0ae6cb9d232f8af",
@@ -63,4 +69,7 @@ fn main() {
       16,
    ).unwrap();
    let point3 = point2.clone();
+
+   let point2p3 = curve.add_points(&point2, &point3);
+   println!("{:x}", point2p3);
 }
