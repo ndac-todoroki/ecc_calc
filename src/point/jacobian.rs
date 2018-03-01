@@ -134,13 +134,13 @@ where
    Self: Sized,
 {
    type Error;
-   fn new(x_str: T, y_str: T, z_str: T, base: U) -> Result<Self, Self::Error>;
+   fn try_new(x_str: T, y_str: T, z_str: T, base: U) -> Result<Self, Self::Error>;
 }
 
 impl NewPoint<&'static str, u32> for JacobianPoint {
    type Error = ParseBigIntError;
 
-   fn new(s1: &str, s2: &str, s3: &str, base: u32) -> Result<Self, Self::Error> {
+   fn try_new(s1: &str, s2: &str, s3: &str, base: u32) -> Result<Self, Self::Error> {
       let x = BigUint::from_str_radix(s1, base);
       let y = BigUint::from_str_radix(s2, base);
       let z = BigUint::from_str_radix(s3, base);
