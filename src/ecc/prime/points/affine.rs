@@ -52,20 +52,27 @@ impl Point for AffinePoint {}
 /* -- Point Convertion impls -- */
 impl PointFrom<JacobianPoint> for AffinePoint {
    fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
-      let pm2 = p - BigInt::from(2_u8);
-      let inv_z: BigInt = if jacob.z.is_zero() {
+      // fast fail
+      if jacob.z.is_zero() {
          panic!("Zero division!")
-      } else if jacob.z.is_one() {
-         BigInt::one()
-      } else {
-         jacob.z.modpow(&pm2, p)
+      }
+
+      #[allow(non_snake_case)]
+      // Function to calculate 1/Z^n mod p as a multipication.
+      let inv_Zn_over_p = |z: &BigInt, n: usize, p: &BigInt| {
+         if z.is_one() {
+            BigInt::one()
+         } else {
+            let exp = p - (n + 1);
+            z.modpow(&exp, p)
+         }
       };
 
-      let x = (&jacob.x * &inv_z).mod_floor(p) * &inv_z;
-      let y = ((&jacob.y * &inv_z).mod_floor(p) * &inv_z).mod_floor(p) * &inv_z;
+      let inv_z2 = inv_Zn_over_p(&jacob.z, 2, p);
+      let inv_z3 = inv_Zn_over_p(&jacob.z, 3, p);
 
-      let x = x.mod_floor(p);
-      let y = y.mod_floor(p);
+      let x = (&jacob.x * &inv_z2).mod_floor(p);
+      let y = (&jacob.y * &inv_z3).mod_floor(p);
 
       AffinePoint { x, y }
    }
