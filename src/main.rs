@@ -113,18 +113,34 @@ fn main() {
       _ => (),
    }
 
-   println!("\n{}", "G, 3G test 2");
+   println!("\n{}", "G, 2G test 2");
    let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
    println!("G= {:x}", &curve.base_point());
    match point_G {
       Ok(point) => {
          println!("G= {:x}", point);
-         let point_2G = curve.multipy_point(&point, BigInt::from(3));
+         let point_2G = curve.multipy_point(&point, BigInt::from(2));
          println!("2G= {:x}", point_2G);
          println!(
             "2G= {:x}",
             curve.convert_point_to::<AffinePoint>(&point_2G).unwrap()
          )
+      },
+      _ => (),
+   }
+
+   println!("\n{}", "n * G should be inf test");
+   let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+   let n = curve.n();
+   match point_G {
+      Ok(point) => {
+         let point_R = curve.multipy_point(&point, n);
+
+         println!("R= {:x}", point_R);
+         println!(
+            "R= {:x}",
+            curve.convert_point_to::<AffinePoint>(&point_R).unwrap()
+         );
       },
       _ => (),
    }

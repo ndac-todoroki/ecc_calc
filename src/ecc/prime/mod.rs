@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::Integer;
+use self::num::{BigInt, Integer};
 use self::num::pow;
 use self::curves::ECCurve;
 
@@ -27,9 +27,12 @@ pub trait ECCurvePoint<P: points::Point>: ECCurve {
          y: point_y,
       } = AffinePoint::convert_from(point, &self.p());
 
-      let left = pow(point_y.clone(), 2).mod_floor(&self.p());
+      let b2 = BigInt::from(2_u8);
+      let b3 = BigInt::from(3_u8);
+
+      let left = point_y.modpow(&b2, &self.p());
       let right =
-         (pow(point_x.clone(), 3) + self.a() * point_x.clone() + self.b()).mod_floor(&self.p());
+         (point_x.modpow(&b3, &self.p()) + self.a() * &point_x + self.b()).mod_floor(&self.p());
 
       /* -- DEBUG -- */
       info!(

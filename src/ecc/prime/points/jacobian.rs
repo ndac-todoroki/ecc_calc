@@ -22,6 +22,7 @@ impl JacobianPoint {
    fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
 }
 
+#[allow(non_snake_case)]
 impl<Curve> PointCalculation<Curve> for JacobianPoint
 where
    Curve: ECCurve,
@@ -36,10 +37,17 @@ where
          return JacobianPoint::from(former);
       }
 
-      let u1 = former.x.clone() * pow(latter.z.clone(), 2);
-      let u2 = latter.x.clone() * pow(former.z.clone(), 2);
-      let s1 = former.y.clone() * pow(latter.z.clone(), 3);
-      let s2 = latter.y.clone() * pow(former.z.clone(), 3);
+      let b2 = BigInt::from(2_u8);
+      let b3 = BigInt::from(3_u8);
+
+      let u1 = &former.x * latter.z.modpow(&b2, &curve.p());
+      let u2 = &latter.x * former.z.modpow(&b2, &curve.p());
+      let s1 = &former.y * latter.z.modpow(&b3, &curve.p());
+      let s2 = &latter.y * former.z.modpow(&b3, &curve.p());
+      // let u1 = former.x.clone() * pow(latter.z.clone(), 2);
+      // let u2 = latter.x.clone() * pow(former.z.clone(), 2);
+      // let s1 = former.y.clone() * pow(latter.z.clone(), 3);
+      // let s2 = latter.y.clone() * pow(former.z.clone(), 3);
 
       let u1 = u1.mod_floor(&curve.p());
       let u2 = u2.mod_floor(&curve.p());
@@ -56,19 +64,40 @@ where
          }
       }
 
-      let h = u1.clone() - u2.clone();
-      let r = s2.clone() - s1.clone();
+      if latter.z.is_one() {
+         info!("** Point Mixed Addition!");
+         let A = former.z.modpow(&b2, &curve.p());
+         let B = (&former.z * &A).mod_floor(&curve.p());
+         let C = (&latter.x * &A).mod_floor(&curve.p());
+         let D = (&latter.y * &B).mod_floor(&curve.p());
+         let E = (&C - &former.x).mod_floor(&curve.p());
+         let F = (&D - &former.y).mod_floor(&curve.p());
+         let G = E.modpow(&b2, &curve.p());
+         let H = (&G * &E).mod_floor(&curve.p());
+         let I = (&former.x * &G).mod_floor(&curve.p());
+         let x = (F.modpow(&b2, &curve.p()) - (&H + &b2 * &I)).mod_floor(&curve.p());
+         let y = (&F * (I - &x) - &former.y * &H).mod_floor(&curve.p());
+         let z = (&former.z * E).mod_floor(&curve.p());
 
-      let x = pow(r.clone(), 2) - pow(h.clone(), 3) - 2_usize * u1.clone() * pow(h.clone(), 2);
-      let x = x.mod_floor(&curve.p());
+         return JacobianPoint { x, y, z };
+      } else {
+         info!("** Point Addition!");
 
-      let y = r.clone() * (u1 * pow(h.clone(), 2) - x.clone()) - s1.clone() * pow(h.clone(), 3);
-      let y = y.mod_floor(&curve.p());
+         let h = (&u1 - &u2).mod_floor(&curve.p());
+         let r = (&s2 - &s1).mod_floor(&curve.p());
 
-      let z = h.clone() * former.z.clone() * latter.z.clone();
-      let z = z.mod_floor(&curve.p());
+         let x = r.modpow(&b2, &curve.p()) - h.modpow(&b3, &curve.p())
+            - 2_usize * &u1 * h.modpow(&b2, &curve.p());
+         let x = x.mod_floor(&curve.p());
 
-      return JacobianPoint { x, y, z };
+         let y = &r * (u1 * h.modpow(&b2, &curve.p()) - &x) - &s1 * h.modpow(&b3, &curve.p());
+         let y = y.mod_floor(&curve.p());
+
+         let z = &h * &former.z * &latter.z;
+         let z = z.mod_floor(&curve.p());
+
+         return JacobianPoint { x, y, z };
+      }
    }
 
    fn point_subtraction(curve: &Curve, former: &Self, latter: &Self) -> Self {
@@ -86,18 +115,22 @@ where
          return JacobianPoint::from(ECCValue::Infinity);
       }
 
-      let A = pow(point.y.clone(), 2).mod_floor(&curve.p());
-      let B = (BigInt::from(4) * point.x.clone() * A.clone()).mod_floor(&curve.p());
-      let C = (BigInt::from(8) * pow(A.clone(), 2)).mod_floor(&curve.p());
-      let D = (BigInt::from(3) * pow(point.x.clone(), 2) + curve.a() * pow(point.z.clone(), 4))
+      let b2 = BigInt::from(2_u8);
+      let b4 = BigInt::from(4_u8);
+
+      let A = point.y.modpow(&b2, &curve.p());
+      let B = (BigInt::from(4) * &point.x * &A).mod_floor(&curve.p());
+      let C = (BigInt::from(8) * A.modpow(&b2, &curve.p())).mod_floor(&curve.p());
+      let D = (BigInt::from(3) * point.x.modpow(&b2, &curve.p())
+         + curve.a() * point.z.modpow(&b4, &curve.p()))
          .mod_floor(&curve.p());
 
       info!("** Point Doubling!");
       debug!("\n * A: {}, \n * B: {}, \n * C: {}, \n * D: {}", A, B, C, D);
 
-      let x = (pow(D.clone(), 2) - BigInt::from(2) * B.clone()).mod_floor(&curve.p());
-      let y = (D * (B - x.clone()) - C).mod_floor(&curve.p());
-      let z = (BigInt::from(4) * point.y.clone() * point.z.clone()).mod_floor(&curve.p());
+      let x = (D.modpow(&b2, &curve.p()) - BigInt::from(2) * &B).mod_floor(&curve.p());
+      let y = (&D * (&B - &x) - &C).mod_floor(&curve.p());
+      let z = (BigInt::from(4) * &point.y * &point.z).mod_floor(&curve.p());
 
       return JacobianPoint { x, y, z };
    }
@@ -111,6 +144,12 @@ where
             if k.is_odd() {
                let mod4 = (k.mod_floor(&BigInt::from(4))).to_i64().unwrap();
                let ki = 2 - (mod4 as i8);
+               assert!(
+                  (-1..2).contains(ki),
+                  "NAF: Unexpected Ki number error: {}",
+                  ki
+               );
+
                vec.push(ki);
                k = k - ki;
             } else {
@@ -126,6 +165,7 @@ where
       debug!("\n{} {:?}", "  *  NAF(k):", stack);
       let mut Q = JacobianPoint::from(ECCValue::Infinity);
       while let Some(top) = stack.pop() {
+         debug!("\n * Q: {:x}", Q);
          Q = Self::point_doublation(curve, &Q);
          match top {
             1 => Q = Self::point_addition(curve, &Q, &point),
@@ -210,8 +250,8 @@ impl From<ECCValue> for JacobianPoint {
          },
          Infinity => {
             JacobianPoint {
-               x: BigInt::zero(),
-               y: BigInt::zero(),
+               x: BigInt::one(),
+               y: BigInt::one(),
                z: BigInt::zero(),
             }
          },

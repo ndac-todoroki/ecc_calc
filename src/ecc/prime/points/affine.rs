@@ -52,21 +52,20 @@ impl Point for AffinePoint {}
 /* -- Point Convertion impls -- */
 impl PointFrom<JacobianPoint> for AffinePoint {
    fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
-      let pm2 = p.clone() - BigInt::from(2_u8);
+      let pm2 = p - BigInt::from(2_u8);
       let inv_z: BigInt = if jacob.z.is_zero() {
          panic!("Zero division!")
-      } else if jacob.z.clone() == BigInt::one() {
+      } else if jacob.z.is_one() {
          BigInt::one()
       } else {
-         jacob.z.clone().modpow(&pm2, &p.clone())
+         jacob.z.modpow(&pm2, p)
       };
 
-      let x = (jacob.x.clone() * inv_z.clone()).mod_floor(&p.clone()) * inv_z.clone();
-      let y = ((jacob.y.clone() * inv_z.clone()).mod_floor(&p.clone()) * inv_z.clone())
-         .mod_floor(&p.clone()) * inv_z.clone();
+      let x = (&jacob.x * &inv_z).mod_floor(p) * &inv_z;
+      let y = ((&jacob.y * &inv_z).mod_floor(p) * &inv_z).mod_floor(p) * &inv_z;
 
-      let x = x.mod_floor(&p.clone());
-      let y = y.mod_floor(&p.clone());
+      let x = x.mod_floor(p);
+      let y = y.mod_floor(p);
 
       AffinePoint { x, y }
    }

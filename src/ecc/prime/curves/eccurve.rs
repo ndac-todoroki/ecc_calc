@@ -41,6 +41,10 @@ where
       PointCalculation::point_addition(self, former, latter)
    }
 
+   fn subtract_points(&self, former: &P, latter: &P) -> P {
+      PointCalculation::point_subtraction(self, former, latter)
+   }
+
    fn double_point(&self, point: &P) -> P { PointCalculation::point_doublation(self, point) }
 
    fn multipy_point(&self, point: &P, b: BigInt) -> P {
