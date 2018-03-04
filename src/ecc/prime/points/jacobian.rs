@@ -37,13 +37,13 @@ where
          return JacobianPoint::from(former);
       }
 
-      let b2 = BigInt::from(2_u8);
-      let b3 = BigInt::from(3_u8);
+      let TWO = BigInt::from(2_u8);
+      let THREE = BigInt::from(3_u8);
 
-      let u1 = &former.x * latter.z.modpow(&b2, &curve.p());
-      let u2 = &latter.x * former.z.modpow(&b2, &curve.p());
-      let s1 = &former.y * latter.z.modpow(&b3, &curve.p());
-      let s2 = &latter.y * former.z.modpow(&b3, &curve.p());
+      let u1 = &former.x * latter.z.modpow(&TWO, &curve.p());
+      let u2 = &latter.x * former.z.modpow(&TWO, &curve.p());
+      let s1 = &former.y * latter.z.modpow(&THREE, &curve.p());
+      let s2 = &latter.y * former.z.modpow(&THREE, &curve.p());
       // let u1 = former.x.clone() * pow(latter.z.clone(), 2);
       // let u2 = latter.x.clone() * pow(former.z.clone(), 2);
       // let s1 = former.y.clone() * pow(latter.z.clone(), 3);
@@ -66,16 +66,16 @@ where
 
       if latter.z.is_one() {
          info!("** Point Mixed Addition!");
-         let A = former.z.modpow(&b2, &curve.p());
+         let A = former.z.modpow(&TWO, &curve.p());
          let B = (&former.z * &A).mod_floor(&curve.p());
          let C = (&latter.x * &A).mod_floor(&curve.p());
          let D = (&latter.y * &B).mod_floor(&curve.p());
          let E = (&C - &former.x).mod_floor(&curve.p());
          let F = (&D - &former.y).mod_floor(&curve.p());
-         let G = E.modpow(&b2, &curve.p());
+         let G = E.modpow(&TWO, &curve.p());
          let H = (&G * &E).mod_floor(&curve.p());
          let I = (&former.x * &G).mod_floor(&curve.p());
-         let x = (F.modpow(&b2, &curve.p()) - (&H + &b2 * &I)).mod_floor(&curve.p());
+         let x = (F.modpow(&TWO, &curve.p()) - (&H + &TWO * &I)).mod_floor(&curve.p());
          let y = (&F * (I - &x) - &former.y * &H).mod_floor(&curve.p());
          let z = (&former.z * E).mod_floor(&curve.p());
 
@@ -86,11 +86,11 @@ where
          let h = (&u1 - &u2).mod_floor(&curve.p());
          let r = (&s2 - &s1).mod_floor(&curve.p());
 
-         let x = r.modpow(&b2, &curve.p()) - h.modpow(&b3, &curve.p())
-            - 2_usize * &u1 * h.modpow(&b2, &curve.p());
+         let x = r.modpow(&TWO, &curve.p()) - h.modpow(&THREE, &curve.p())
+            - 2_usize * &u1 * h.modpow(&TWO, &curve.p());
          let x = x.mod_floor(&curve.p());
 
-         let y = &r * (u1 * h.modpow(&b2, &curve.p()) - &x) - &s1 * h.modpow(&b3, &curve.p());
+         let y = &r * (u1 * h.modpow(&TWO, &curve.p()) - &x) - &s1 * h.modpow(&THREE, &curve.p());
          let y = y.mod_floor(&curve.p());
 
          let z = &h * &former.z * &latter.z;
@@ -115,20 +115,20 @@ where
          return JacobianPoint::from(ECCValue::Infinity);
       }
 
-      let b2 = BigInt::from(2_u8);
-      let b4 = BigInt::from(4_u8);
+      let TWO = BigInt::from(2_u8);
+      let FOUR = BigInt::from(4_u8);
 
-      let A = point.y.modpow(&b2, &curve.p());
+      let A = point.y.modpow(&TWO, &curve.p());
       let B = (BigInt::from(4) * &point.x * &A).mod_floor(&curve.p());
-      let C = (BigInt::from(8) * A.modpow(&b2, &curve.p())).mod_floor(&curve.p());
-      let D = (BigInt::from(3) * point.x.modpow(&b2, &curve.p())
-         + curve.a() * point.z.modpow(&b4, &curve.p()))
+      let C = (BigInt::from(8) * A.modpow(&TWO, &curve.p())).mod_floor(&curve.p());
+      let D = (BigInt::from(3) * point.x.modpow(&TWO, &curve.p())
+         + curve.a() * point.z.modpow(&FOUR, &curve.p()))
          .mod_floor(&curve.p());
 
       info!("** Point Doubling!");
       debug!("\n * A: {}, \n * B: {}, \n * C: {}, \n * D: {}", A, B, C, D);
 
-      let x = (D.modpow(&b2, &curve.p()) - BigInt::from(2) * &B).mod_floor(&curve.p());
+      let x = (D.modpow(&TWO, &curve.p()) - BigInt::from(2) * &B).mod_floor(&curve.p());
       let y = (&D * (&B - &x) - &C).mod_floor(&curve.p());
       let z = (BigInt::from(4) * &point.y * &point.z).mod_floor(&curve.p());
 
