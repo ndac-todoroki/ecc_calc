@@ -11,7 +11,11 @@ pub trait Point
 pub trait PointCalculation<Curve: prime::ECCurve>: Point {
    fn point_addition(&Curve, &Self, &Self) -> Self;
 
+   fn point_subtraction(&Curve, &Self, &Self) -> Self;
+
    fn point_doublation(&Curve, &Self) -> Self;
+
+   fn point_multipication(&Curve, &Self, BigInt) -> Self;
 }
 
 pub trait PointFrom<P: Point>: Point {

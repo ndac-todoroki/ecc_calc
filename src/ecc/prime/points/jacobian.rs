@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::{pow, BigInt, Integer, Num, Zero};
+use self::num::{pow, BigInt, Integer, Num, One, ToPrimitive, Zero};
 use self::num::bigint::ParseBigIntError;
 use super::super::curves::ECCurve;
 
@@ -19,51 +19,7 @@ pub struct JacobianPoint {
 }
 
 impl JacobianPoint {
-   // fn add(&self, other: &JacobianPoint) -> JacobianPoint {
-   //    let u1 = self.x.clone() * pow(other.z.clone(), 2);
-   //    let u2 = other.x.clone() * pow(self.z.clone(), 2);
-   //    let s1 = self.y.clone() * pow(other.z.clone(), 3);
-   //    let s2 = other.y.clone() * pow(self.z.clone(), 3);
-
-   //    if u1 == u2 {
-   //       if s1 != s2 {
-   //          return JacobianPoint::point_at_infinity();
-   //       } else {
-   //          return self.double();
-   //       }
-   //    }
-
-   //    let h = u1.clone() - u2.clone();
-   //    let r = s2.clone() - s1.clone();
-   // let x3 = pow(r.clone(), 2) - pow(h.clone(), 3) - 2_usize * u1.clone() *
-   // pow(h.clone(), 2); let y3 = r.clone() * (u1 * pow(h.clone(), 2) -
-   // x3.clone()) - s1.clone() * pow(h.clone(), 3); let z3 = h.clone() *
-   // self.z.clone() * other.z.clone();
-
-   //    return JacobianPoint {
-   //       x: x3,
-   //       y: y3,
-   //       z: z3,
-   //    };
-   // }
-
-   // fn double(&self) -> JacobianPoint {
-   //    if self.y.is_zero() {
-   //       return JacobianPoint::from(ECCValue::Infinity);
-   //    }
-
-   //    let s = 4_usize * self.x.clone() * pow(self.y.clone(), 2);
-   // let m = 3_usize * pow(self.x.clone(), 2) + JacobianPoint::a() *
-   // pow(self.z.clone(), 4); let x = pow(m.clone(), 2) - 2_usize *
-   // s.clone();    println!("s {}, x {}", s, x);
-   //    let y1 = m.clone() * (s.clone() - x.clone());
-   //    let y2 = 8_usize * pow(self.y.clone(), 4);
-   //    println!("y1 {}, y2 {}", y1, y2);
-   //    let y = y1 - y2;
-   //    let z = 2_usize * self.y.clone() * self.z.clone();
-
-   //    return JacobianPoint { x, y, z };
-   // }
+   fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
 }
 
 impl<Curve> PointCalculation<Curve> for JacobianPoint
@@ -72,6 +28,14 @@ where
 {
    /// Returns a function that takes a curve and return the result point.
    fn point_addition(curve: &Curve, former: &Self, latter: &Self) -> Self {
+      // fast return
+      if former.is_point_at_infinity() {
+         return JacobianPoint::from(latter);
+      }
+      if latter.is_point_at_infinity() {
+         return JacobianPoint::from(former);
+      }
+
       let u1 = former.x.clone() * pow(latter.z.clone(), 2);
       let u2 = latter.x.clone() * pow(former.z.clone(), 2);
       let s1 = former.y.clone() * pow(latter.z.clone(), 3);
@@ -107,31 +71,69 @@ where
       return JacobianPoint { x, y, z };
    }
 
+   fn point_subtraction(curve: &Curve, former: &Self, latter: &Self) -> Self {
+      let latter = Self {
+         x: latter.x.clone(),
+         y: latter.y.clone() * -1,
+         z: latter.z.clone(),
+      };
+      Self::point_addition(curve, former, &latter)
+   }
+
+   #[allow(non_snake_case)]
    fn point_doublation(curve: &Curve, point: &Self) -> Self {
-      if point.y.is_zero() {
+      if point.y.is_zero() || point.z.is_zero() {
          return JacobianPoint::from(ECCValue::Infinity);
       }
 
-      let s = 4_usize * point.x.clone() * pow(point.y.clone(), 2);
-      let s = s.mod_floor(&curve.p());
+      let A = pow(point.y.clone(), 2).mod_floor(&curve.p());
+      let B = (BigInt::from(4) * point.x.clone() * A.clone()).mod_floor(&curve.p());
+      let C = (BigInt::from(8) * pow(A.clone(), 2)).mod_floor(&curve.p());
+      let D = (BigInt::from(3) * pow(point.x.clone(), 2) + curve.a() * pow(point.z.clone(), 4))
+         .mod_floor(&curve.p());
 
-      let m = 3_usize * pow(point.x.clone(), 2) + curve.a() * pow(point.z.clone(), 4);
-      let m = m.mod_floor(&curve.p());
+      info!("** Point Doubling!");
+      debug!("\n * A: {}, \n * B: {}, \n * C: {}, \n * D: {}", A, B, C, D);
 
-      let x = pow(m.clone(), 2) - 2_usize * s.clone();
-      let x = x.mod_floor(&curve.p());
-      debug!("s {}, x {}", s, x);
-
-      let y1 = m.clone() * (s.clone() - x.clone());
-      let y2 = 8_usize * pow(point.y.clone(), 4);
-      debug!("y1 {}, y2 {}", y1, y2);
-      let y = y1 - y2;
-      let y = y.mod_floor(&curve.p());
-
-      let z = 2_usize * point.y.clone() * point.z.clone();
-      let z = z.mod_floor(&curve.p());
+      let x = (pow(D.clone(), 2) - BigInt::from(2) * B.clone()).mod_floor(&curve.p());
+      let y = (D * (B - x.clone()) - C).mod_floor(&curve.p());
+      let z = (BigInt::from(4) * point.y.clone() * point.z.clone()).mod_floor(&curve.p());
 
       return JacobianPoint { x, y, z };
+   }
+
+   #[allow(non_snake_case)]
+   fn point_multipication(curve: &Curve, point: &Self, k: BigInt) -> Self {
+      /// NAF(k), Algorithm 3.30
+      let NAF = |mut k: BigInt| -> Vec<i8> {
+         let mut vec = Vec::new();
+         while k >= BigInt::one() {
+            if k.is_odd() {
+               let mod4 = (k.mod_floor(&BigInt::from(4))).to_i64().unwrap();
+               let ki = 2 - (mod4 as i8);
+               vec.push(ki);
+               k = k - ki;
+            } else {
+               vec.push(0_i8);
+            }
+            k = k / 2;
+         }
+         return vec;
+      };
+
+      // Algorithm 3.31
+      let mut stack = NAF(k);
+      debug!("\n{} {:?}", "  *  NAF(k):", stack);
+      let mut Q = JacobianPoint::from(ECCValue::Infinity);
+      while let Some(top) = stack.pop() {
+         Q = Self::point_doublation(curve, &Q);
+         match top {
+            1 => Q = Self::point_addition(curve, &Q, &point),
+            -1 => Q = Self::point_subtraction(curve, &Q, &point),
+            _ => (),
+         }
+      }
+      return Q;
    }
 }
 
@@ -185,7 +187,7 @@ impl PointFrom<AffinePoint> for JacobianPoint {
       JacobianPoint {
          x: point.x.clone(),
          y: point.y.clone(),
-         z: BigInt::from(1_u8),
+         z: BigInt::one(),
       }
    }
 }
@@ -203,7 +205,7 @@ impl From<ECCValue> for JacobianPoint {
             JacobianPoint {
                x,
                y,
-               z: BigInt::from(1_u8),
+               z: BigInt::one(),
             }
          },
          Infinity => {
@@ -213,6 +215,16 @@ impl From<ECCValue> for JacobianPoint {
                z: BigInt::zero(),
             }
          },
+      }
+   }
+}
+
+impl<'a> From<&'a JacobianPoint> for JacobianPoint {
+   fn from(val: &JacobianPoint) -> JacobianPoint {
+      JacobianPoint {
+         x: val.x.clone(),
+         y: val.y.clone(),
+         z: val.z.clone(),
       }
    }
 }

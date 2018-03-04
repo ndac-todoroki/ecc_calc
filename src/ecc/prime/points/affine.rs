@@ -2,7 +2,7 @@ extern crate num;
 
 use self::num::BigInt;
 use self::num::bigint::ParseBigIntError;
-use self::num::{Integer, Num, Zero};
+use self::num::{Integer, Num, One, Zero};
 
 use std;
 use std::fmt;
@@ -55,16 +55,20 @@ impl PointFrom<JacobianPoint> for AffinePoint {
       let pm2 = p.clone() - BigInt::from(2_u8);
       let inv_z: BigInt = if jacob.z.is_zero() {
          panic!("Zero division!")
-      } else if jacob.z.clone() == BigInt::from(1_u8) {
-         BigInt::from(1_u8)
+      } else if jacob.z.clone() == BigInt::one() {
+         BigInt::one()
       } else {
          jacob.z.clone().modpow(&pm2, &p.clone())
       };
 
-      AffinePoint {
-         x: jacob.x.clone() * inv_z.clone() * inv_z.clone(),
-         y: jacob.y.clone() * inv_z.clone() * inv_z.clone() * inv_z.clone(),
-      }
+      let x = (jacob.x.clone() * inv_z.clone()).mod_floor(&p.clone()) * inv_z.clone();
+      let y = ((jacob.y.clone() * inv_z.clone()).mod_floor(&p.clone()) * inv_z.clone())
+         .mod_floor(&p.clone()) * inv_z.clone();
+
+      let x = x.mod_floor(&p.clone());
+      let y = y.mod_floor(&p.clone());
+
+      AffinePoint { x, y }
    }
 }
 

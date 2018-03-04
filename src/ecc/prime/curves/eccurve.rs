@@ -42,4 +42,8 @@ where
    }
 
    fn double_point(&self, point: &P) -> P { PointCalculation::point_doublation(self, point) }
+
+   fn multipy_point(&self, point: &P, b: BigInt) -> P {
+      PointCalculation::point_multipication(self, point, b)
+   }
 }

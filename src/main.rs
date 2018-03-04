@@ -1,4 +1,7 @@
 extern crate ecc_calculator as module;
+extern crate num;
+
+use self::num::BigInt;
 
 #[macro_use]
 extern crate log;
@@ -62,14 +65,67 @@ fn main() {
    r = f6bb32e43dcf3a3b732205038d1490d9aa6ae3c1a433827d850046d410ddd64d, 78c577510a5b8a3b19a8fb0e92042dbe152cd7cbeb236ff82f3648d361bee1a5
    */
 
+   println!("\n{}", "G + G = 2G test");
    let point2 = JacobianPoint::try_new(
-      "2b11cb945c8cf152ffa4c9c2b1c965b019b35d0b7626919ef0ae6cb9d232f8af",
-      "6d333da42e30f7011245b6281015ded14e0f100968e758a1b6c3c083afc14ea0",
-      "0000000000000000000000000000000000000000000000000000000000000000",
+      "18905f76a53755c679fb732b7762251075ba95fc5fedb60179e730d418a9143c",
+      "8571ff1825885d85d2e88688dd21f3258b4ab8e4ba19e45cddf25357ce95560a",
+      "00000000fffffffeffffffffffffffffffffffff000000000000000000000001",
       16,
    ).unwrap();
-   let point3 = point2.clone();
 
-   let point2p3 = curve.add_points(&point2, &point3);
-   println!("{:x}", point2p3);
+   /* println!("{}", "Check if point G is on curve");
+   match curve.point_is_on_curve(&point2) {
+      true => {
+         println!(
+            "{:X}",
+            curve.convert_point_to::<AffinePoint>(&point2).unwrap()
+         );
+
+         let point2p2 = curve.add_points(&point2, &point2);
+         println!("{:x}", point2p2);
+         println!(
+            "2G= {:x}",
+            curve.convert_point_to::<AffinePoint>(&point2p2).unwrap()
+         );
+
+         let point_R = AffinePoint::try_new(
+            "f6bb32e43dcf3a3b732205038d1490d9aa6ae3c1a433827d850046d410ddd64d",
+            "78c577510a5b8a3b19a8fb0e92042dbe152cd7cbeb236ff82f3648d361bee1a5",
+            16,
+         ).unwrap();
+         println!("\nPoint r = {:x}", point_R);
+      },
+      false => println!("Could not parse {:?}", point2),
+   } */
+
+   println!("\n{}", "G, 2G test");
+   let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+   println!("G= {:x}", &curve.base_point());
+   match point_G {
+      Ok(point) => {
+         println!("G= {:x}", point);
+         let point_2G = curve.double_point(&point);
+         println!(
+            "2G= {:x}",
+            curve.convert_point_to::<AffinePoint>(&point_2G).unwrap()
+         )
+      },
+      _ => (),
+   }
+
+   println!("\n{}", "G, 3G test 2");
+   let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+   println!("G= {:x}", &curve.base_point());
+   match point_G {
+      Ok(point) => {
+         println!("G= {:x}", point);
+         let point_2G = curve.multipy_point(&point, BigInt::from(3));
+         println!("2G= {:x}", point_2G);
+         println!(
+            "2G= {:x}",
+            curve.convert_point_to::<AffinePoint>(&point_2G).unwrap()
+         )
+      },
+      _ => (),
+   }
 }
