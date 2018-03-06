@@ -1,6 +1,4 @@
-use std::{error, fmt, result};
-
-type Result<T> = result::Result<T, ConvertionError>;
+use std::{error, fmt};
 
 #[derive(Debug, Clone)]
 // Define our error types. These may be customized for our error handling cases.

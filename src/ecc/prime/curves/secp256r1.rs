@@ -7,7 +7,6 @@ use super::super::points;
 use self::points::Point;
 use self::points::affine::{AffinePoint, NewPoint};
 use super::super::curves::{ECCurve, ECCurveCalculation};
-use ecc::ECCValue;
 
 /// filed `p` where `E: y2 = x3 + ax + b over Fp`
 const P: &str = "FFFFFFFF_00000001_00000000_00000000_00000000_FFFFFFFF_FFFFFFFF_FFFFFFFF";
@@ -18,6 +17,7 @@ const B: &str = "5AC635D8_AA3A93E7_B3EBBD55_769886BC_651D06B0_CC53B0F6_3BCE3C3E_
 /// order `n`
 const N: &str = "FFFFFFFF_00000000_FFFFFFFF_FFFFFFFF_BCE6FAAD_A7179E84_F3B9CAC2_FC632551";
 ///Base point `G` in uncompressed form.
+#[warn(dead_code)]
 const G: &str = "046B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C2964FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5";
 #[allow(non_upper_case_globals)]
 const Gx: &str = "6B17D1F2_E12C4247_F8BCE6E5_63A440F2_77037D81_2DEB33A0_F4A13945_D898C296";

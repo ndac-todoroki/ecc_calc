@@ -1,14 +1,11 @@
 extern crate num;
 
 use self::num::{BigInt, Integer};
-use self::num::pow;
 use self::curves::ECCurve;
-
-use super::ECCValue;
 
 pub mod curves;
 pub mod points;
-use self::points::{Point, PointFrom};
+use self::points::PointFrom;
 
 /// Functions for points on finite prime eccurves.
 /// ### Example

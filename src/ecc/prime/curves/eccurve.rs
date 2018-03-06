@@ -1,8 +1,7 @@
 extern crate num;
 
 use self::num::BigInt;
-use super::super::ECCValue;
-use ecc::prime::points::{AffinePoint, Point, PointCalculation};
+use ecc::prime::points::{AffinePoint, PointCalculation};
 use std;
 
 /// Implement basic curve related functions and lookups.

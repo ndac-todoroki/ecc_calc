@@ -1,6 +1,6 @@
 extern crate num;
 
-use self::num::{pow, BigInt, Integer, Num, One, ToPrimitive, Zero};
+use self::num::{BigInt, Integer, Num, One, ToPrimitive, Zero};
 use self::num::bigint::ParseBigIntError;
 use super::super::curves::ECCurve;
 
@@ -137,7 +137,7 @@ where
 
    #[allow(non_snake_case)]
    fn point_multipication(curve: &Curve, point: &Self, k: BigInt) -> Self {
-      /// NAF(k), Algorithm 3.30
+      // NAF(k), Algorithm 3.30
       let NAF = |mut k: BigInt| -> Vec<i8> {
          let mut vec = Vec::new();
          while k >= BigInt::one() {
