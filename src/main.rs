@@ -12,6 +12,10 @@ extern crate simple_logger;
 use module::ecc::prime::points;
 use module::ecc::prime::points::affine::{AffinePoint, NewPoint as NewAffine};
 use module::ecc::prime::points::jacobian::{JacobianPoint, NewPoint as NewJacobian};
+use module::ecc::prime::points::standard_projective::{
+   NewPoint as NewStandard,
+   StandardProjectivePoint,
+};
 use module::ecc::prime::ECCurvePoint;
 use module::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256k1, Secp256r1};
 use module::ecc::ECCValue;
@@ -42,7 +46,7 @@ fn main() {
    };
 
    println!("\n{}", "Affine -> Jacobian");
-   let jacob = curve.convert_point_to::<JacobianPoint>(&point);
+   let jacob = curve.convert_point_to::<StandardProjectivePoint>(&point);
    match jacob.clone() {
       Ok(value) => {
          println!("{:X}", value);
@@ -63,10 +67,13 @@ fn main() {
    let secp256r1 = Curves::Secp256r1;
 
    baseG_multipy_2_test(&secp256r1);
-   baseG_multipy_n_test(&secp256r1);
-
    baseG_multipy_2_test(&secp256k1);
-   baseG_multipy_n_test(&secp256k1);
+
+   let result = std::panic::catch_unwind(|| baseG_multipy_n_test(&secp256r1));
+   assert!(result.is_err());
+
+   let result = std::panic::catch_unwind(|| baseG_multipy_n_test(&secp256k1));
+   assert!(result.is_err());
 }
 
 enum Curves {
@@ -79,15 +86,15 @@ fn baseG_multipy_2_test(curve_enum: &Curves) {
       &Curves::Secp256k1 => {
          let curve = Secp256k1::new();
          println!("\nG, 2G test 2 on {}", curve.name());
-         let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+         let point_G = curve.convert_point_to::<StandardProjectivePoint>(&curve.base_point());
          println!("G={:x}", &curve.base_point());
          match point_G {
             Ok(point) => {
                println!("G= {:x}", point);
                let point_2G = curve.multipy_point(&point, BigInt::from(2));
-               println!("2G= {:x}", point_2G);
+               println!("2G= {:064x}", point_2G);
                println!(
-                  "2G= {:x}",
+                  "2G= {:064x}",
                   curve.convert_point_to::<AffinePoint>(&point_2G).unwrap()
                )
             },
@@ -97,15 +104,15 @@ fn baseG_multipy_2_test(curve_enum: &Curves) {
       &Curves::Secp256r1 => {
          let curve = Secp256r1::new();
          println!("\nG, 2G test 2 on {}", curve.name());
-         let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+         let point_G = curve.convert_point_to::<StandardProjectivePoint>(&curve.base_point());
          println!("G={:x}", &curve.base_point());
          match point_G {
             Ok(point) => {
                println!("G= {:x}", point);
                let point_2G = curve.multipy_point(&point, BigInt::from(2));
-               println!("2G= {:x}", point_2G);
+               println!("2G= {:064x}", point_2G);
                println!(
-                  "2G= {:x}",
+                  "2G= {:064x}",
                   curve.convert_point_to::<AffinePoint>(&point_2G).unwrap()
                )
             },
@@ -115,12 +122,14 @@ fn baseG_multipy_2_test(curve_enum: &Curves) {
    };
 }
 
+// #[test]
+// #[should_panic]
 fn baseG_multipy_n_test(curve_enum: &Curves) {
    match curve_enum {
       &Curves::Secp256k1 => {
          let curve = Secp256k1::new();
          println!("\nn * G should be inf test on {}", curve.name());
-         let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+         let point_G = curve.convert_point_to::<StandardProjectivePoint>(&curve.base_point());
          let n = curve.n();
          match point_G {
             Ok(point) => {
@@ -138,7 +147,7 @@ fn baseG_multipy_n_test(curve_enum: &Curves) {
       &Curves::Secp256r1 => {
          let curve = Secp256r1::new();
          println!("\nn * G should be inf test on {}", curve.name());
-         let point_G = curve.convert_point_to::<JacobianPoint>(&curve.base_point());
+         let point_G = curve.convert_point_to::<StandardProjectivePoint>(&curve.base_point());
          let n = curve.n();
          match point_G {
             Ok(point) => {

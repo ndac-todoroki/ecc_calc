@@ -56,7 +56,7 @@ where
 
       debug!("u1: {:x}, u2: {:x}", u1, u2);
       if u1 == u2 {
-         debug!("u1: {:x}, u2: {:x}", s1, s2);
+         debug!("s1: {:x}, s2: {:x}", s1, s2);
          if s1 != s2 {
             return JacobianPoint::from(ECCValue::Infinity);
          } else {
@@ -111,7 +111,8 @@ where
 
    #[allow(non_snake_case)]
    fn point_doublation(curve: &Curve, point: &Self) -> Self {
-      if point.y.is_zero() || point.z.is_zero() {
+      if point.is_point_at_infinity() {
+         // point.y.is_zero() || point.z.is_zero() {
          return JacobianPoint::from(ECCValue::Infinity);
       }
 
@@ -229,6 +230,34 @@ impl PointFrom<AffinePoint> for JacobianPoint {
          y: point.y.clone(),
          z: BigInt::one(),
       }
+   }
+}
+
+impl PointFrom<JacobianPoint> for AffinePoint {
+   fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
+      // fast fail
+      if jacob.z.is_zero() {
+         panic!("Zero division!")
+      }
+
+      #[allow(non_snake_case)]
+      // Function to calculate 1/Z^n mod p as a multipication.
+      let inv_Zn_over_p = |z: &BigInt, n: usize, p: &BigInt| {
+         if z.is_one() {
+            BigInt::one()
+         } else {
+            let exp = p - (n + 1);
+            z.modpow(&exp, p)
+         }
+      };
+
+      let inv_z2 = inv_Zn_over_p(&jacob.z, 2, p);
+      let inv_z3 = inv_Zn_over_p(&jacob.z, 3, p);
+
+      let x = (&jacob.x * &inv_z2).mod_floor(p);
+      let y = (&jacob.y * &inv_z3).mod_floor(p);
+
+      AffinePoint { x, y }
    }
 }
 

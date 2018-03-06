@@ -88,3 +88,4 @@ impl<P: Point> ECCurvePoint<P> for Secp256k1 {}
 // impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256k1 {}
 
 impl ECCurveCalculation<points::JacobianPoint> for Secp256k1 {}
+impl ECCurveCalculation<points::StandardProjectivePoint> for Secp256k1 {}

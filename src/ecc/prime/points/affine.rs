@@ -2,13 +2,13 @@ extern crate num;
 
 use self::num::BigInt;
 use self::num::bigint::ParseBigIntError;
-use self::num::{Integer, Num, One, Zero};
+use self::num::Num;
 
 use std;
 use std::fmt;
 use std::convert::TryFrom;
 
-use super::{JacobianPoint, Point, PointFrom};
+use super::{Point, PointFrom};
 use super::super::super::ECCValue;
 
 /// The `AffinePoint` struct represents a certain point on the elliptic curve,
@@ -50,34 +50,6 @@ impl fmt::Octal for AffinePoint {
 impl Point for AffinePoint {}
 
 /* -- Point Convertion impls -- */
-impl PointFrom<JacobianPoint> for AffinePoint {
-   fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
-      // fast fail
-      if jacob.z.is_zero() {
-         panic!("Zero division!")
-      }
-
-      #[allow(non_snake_case)]
-      // Function to calculate 1/Z^n mod p as a multipication.
-      let inv_Zn_over_p = |z: &BigInt, n: usize, p: &BigInt| {
-         if z.is_one() {
-            BigInt::one()
-         } else {
-            let exp = p - (n + 1);
-            z.modpow(&exp, p)
-         }
-      };
-
-      let inv_z2 = inv_Zn_over_p(&jacob.z, 2, p);
-      let inv_z3 = inv_Zn_over_p(&jacob.z, 3, p);
-
-      let x = (&jacob.x * &inv_z2).mod_floor(p);
-      let y = (&jacob.y * &inv_z3).mod_floor(p);
-
-      AffinePoint { x, y }
-   }
-}
-
 impl PointFrom<AffinePoint> for AffinePoint {
    fn convert_from(point: &AffinePoint, _i: &BigInt) -> Self { point.clone() }
 }

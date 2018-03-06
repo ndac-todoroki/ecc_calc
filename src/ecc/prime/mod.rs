@@ -5,7 +5,6 @@ use self::curves::ECCurve;
 
 pub mod curves;
 pub mod points;
-use self::points::PointFrom;
 
 /// Functions for points on finite prime eccurves.
 /// ### Example
@@ -22,14 +21,16 @@ pub trait ECCurvePoint<P: points::Point>: ECCurve {
       let AffinePoint {
          x: point_x,
          y: point_y,
-      } = AffinePoint::convert_from(point, &self.p());
+      } = self.convert_point_to::<AffinePoint>(point).unwrap();
 
-      let b2 = BigInt::from(2_u8);
-      let b3 = BigInt::from(3_u8);
+      #[allow(non_snake_case)]
+      let TWO = BigInt::from(2_u8);
+      #[allow(non_snake_case)]
+      let THREE = BigInt::from(3_u8);
 
-      let left = point_y.modpow(&b2, &self.p());
+      let left = point_y.modpow(&TWO, &self.p());
       let right =
-         (point_x.modpow(&b3, &self.p()) + self.a() * &point_x + self.b()).mod_floor(&self.p());
+         (point_x.modpow(&THREE, &self.p()) + self.a() * &point_x + self.b()).mod_floor(&self.p());
 
       /* -- DEBUG -- */
       info!(

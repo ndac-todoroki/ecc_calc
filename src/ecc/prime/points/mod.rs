@@ -38,9 +38,11 @@ where
 
 pub mod affine;
 pub mod jacobian;
+pub mod standard_projective;
 
 pub use self::affine::AffinePoint;
 pub use self::jacobian::JacobianPoint;
+pub use self::standard_projective::StandardProjectivePoint;
 
 mod errors;
 pub use self::errors::convertion::ConvertionError;

@@ -88,6 +88,7 @@ impl<P: Point> ECCurvePoint<P> for Secp256r1 {}
 // impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256r1 {}
 
 impl ECCurveCalculation<points::JacobianPoint> for Secp256r1 {}
+impl ECCurveCalculation<points::StandardProjectivePoint> for Secp256r1 {}
 
 #[cfg(test)]
 #[allow(unused_qualifications)]
