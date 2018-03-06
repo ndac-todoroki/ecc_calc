@@ -51,33 +51,6 @@ pub trait ECCurvePoint<P: points::Point>: ECCurve {
    where
       N: points::PointFrom<P>,
    {
-      Ok(N::convert_from(point, &self.a()))
+      Ok(N::convert_from(point, &self.p()))
    }
-
-   // /// Needs definition
-   // fn point_addition<N: point::Point>(
-   //    &self,
-   //    ECCValue<P>,
-   //    ECCValue<P>,
-   // ) -> Result<ECCValue<N>, point::ConvertionError>
-   // where
-   //    N: point::PointFrom<P> + TryFrom<point::Infinity>;
 }
-
-// trait ECCurvePoint<T, U>
-// where
-//    Self: Sized,
-// {
-//    type Error;
-
-//    /// Return point at the given curve, by the given `x` and `y` strings.
-//    /// If the point is not on the curve, it should return a Err.
-// fn try_create_point_at(&self, x_str: T, y_str: T, base: U) ->
-// Result<AffinePoint, Self::Error>; }
-
-// trait ECCurvePointChecker<P> {
-//    type Error;
-
-//    /// Check if the point is on the curve.
-//    fn verify_point(&self, point: P) -> Result<AffinePoint, Self::Error>;
-// }
