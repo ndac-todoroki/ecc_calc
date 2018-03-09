@@ -24,25 +24,45 @@ impl AffineCoordinates {}
 /* -- Formatter impls -- */
 impl fmt::Display for AffineCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "AffineCoordinates(x: {}, y: {})", self.x, self.y)
+      write!(f, "AffineCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::LowerHex for AffineCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "AffineCoordinates(x: {:x}, y: {:x})", self.x, self.y)
+      write!(f, "AffineCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::UpperHex for AffineCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "AffineCoordinates(x: {:X}, y: {:X})", self.x, self.y)
+      write!(f, "AffineCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::Octal for AffineCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(f, "AffineCoordinates(x: {:o}, y: {:o})", self.x, self.y)
+      write!(f, "AffineCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 /* -- Formatter impls -- */

@@ -185,41 +185,53 @@ where
 /* -- Formatter impls -- */
 impl fmt::Display for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "StandardProjectiveCoordinates(x: {}, y: {}, z: {})",
-         self.x, self.y, self.z
-      )
+      write!(f, "StandardProjectiveCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::LowerHex for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "StandardProjectiveCoordinates(x: {:x}, y: {:x}, z: {:x})",
-         self.x, self.y, self.z
-      )
+      write!(f, "StandardProjectiveCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::UpperHex for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "StandardProjectiveCoordinates(x: {:X}, y: {:X}, z: {:X})",
-         self.x, self.y, self.z
-      )
+      write!(f, "StandardProjectiveCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::Octal for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "StandardProjectiveCoordinates(x: {:o}, y: {:o}, z: {:o})",
-         self.x, self.y, self.z
-      )
+      write!(f, "StandardProjectiveCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 /* -- Formatter impls -- */

@@ -181,41 +181,53 @@ where
 /* -- Formatter impls -- */
 impl fmt::Display for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "JacobianCoordinates(x: {}, y: {}, z: {})",
-         self.x, self.y, self.z
-      )
+      write!(f, "JacobianCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::LowerHex for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "JacobianCoordinates(x: {:x}, y: {:x}, z: {:x})",
-         self.x, self.y, self.z
-      )
+      write!(f, "JacobianCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::UpperHex for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "JacobianCoordinates(x: {:X}, y: {:X}, z: {:X})",
-         self.x, self.y, self.z
-      )
+      write!(f, "JacobianCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 
 impl fmt::Octal for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-      write!(
-         f,
-         "JacobianCoordinates(x: {:o}, y: {:o}, z: {:o})",
-         self.x, self.y, self.z
-      )
+      write!(f, "JacobianCoordinates(x: ")?;
+      self.x.fmt(f)?;
+      write!(f, ", y: ")?;
+      self.y.fmt(f)?;
+      write!(f, ", z: ")?;
+      self.z.fmt(f)?;
+      write!(f, ")")?;
+      Ok(())
    }
 }
 /* -- Formatter impls -- */
