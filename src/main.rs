@@ -1,4 +1,6 @@
-extern crate ecc_calculator as module;
+#![allow(non_snake_case)]
+
+extern crate ecc_calc as module;
 extern crate num;
 
 use self::num::BigInt;
@@ -7,20 +9,11 @@ use self::num::BigInt;
 extern crate log;
 extern crate simple_logger;
 
-// test data http://point-at-infinity.org/ecc/nisttv
-
-use module::ecc::prime::points;
 use module::ecc::prime::points::affine::{AffinePoint, NewPoint as NewAffine};
-use module::ecc::prime::points::jacobian::{JacobianPoint, NewPoint as NewJacobian};
-use module::ecc::prime::points::standard_projective::{
-   NewPoint as NewStandard,
-   StandardProjectivePoint,
-};
+use module::ecc::prime::points::standard_projective::StandardProjectivePoint;
 use module::ecc::prime::ECCurvePoint;
 use module::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256k1, Secp256r1};
-use module::ecc::ECCValue;
 use std::error::Error;
-use std::marker::Sized;
 
 fn main() {
    simple_logger::init().unwrap();
@@ -82,7 +75,7 @@ enum Curves {
 }
 
 fn baseG_multipy_2_test(curve_enum: &Curves) {
-   let curve = match curve_enum {
+   match curve_enum {
       &Curves::Secp256k1 => {
          let curve = Secp256k1::new();
          println!("\nG, 2G test 2 on {}", curve.name());
