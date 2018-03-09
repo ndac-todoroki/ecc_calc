@@ -1,12 +1,9 @@
 [package]
-name = "ecc_calculator"
-version = "0.1.0"
+name = "ecc_calc"
+version = "0.2.0"
 authors = ["Todoroki <todoroki.auone@gmail.com>"]
 
 [dependencies]
-# ring = { git = "https://github.com/simula-labs/ring", branch = "master" }
-ring = {path = "/home/todoroki/RustProjects/ring_simula"}
-untrusted = "0.6"
 num = "0.1"
 log = { version = "0.4", features = ["max_level_trace", "release_max_level_warn"] }
 simple_logger = "0.5"
