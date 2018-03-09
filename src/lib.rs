@@ -21,15 +21,32 @@ mod overall {
    use super::ecc::prime::ECCurvePoint;
    use super::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256k1, Secp256r1};
 
-   #[test]
-   fn create_affine_point() {
-      let point = AffineCoordinates::try_new(
+   // #[test]
+   fn create_affine_point() -> AffineCoordinates {
+      return AffineCoordinates::try_new(
          "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296",
          "4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
          16,
       ).unwrap();
+   }
 
-      println!("Given point: {:x}", point);
+   #[test]
+   fn affine_coordinate_creation() { create_affine_point(); }
+
+   #[test]
+   fn output_formatter() {
+      let point = create_affine_point();
+      assert_eq!(
+         format!("{:X}", point),
+         "AffineCoordinates(x: 6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296, \
+          y: 4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5)"
+      );
+      assert_eq!(
+         format!("{:070X}", point),
+         "AffineCoordinates(x: \
+          0000006B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296, y: \
+          0000004FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5)"
+      );
    }
 
    #[test]
@@ -39,8 +56,8 @@ mod overall {
 
       let point = secp256r1.base_point(); // AffineCoordinates
 
-      assert!(secp256r1.point_is_on_curve(&point) == true);
-      assert!(secp256k1.point_is_on_curve(&point) == false);
+      assert_eq!(secp256r1.point_is_on_curve(&point), true);
+      assert_eq!(secp256k1.point_is_on_curve(&point), false);
    }
 
    #[test]
