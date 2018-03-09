@@ -5,7 +5,7 @@ use self::num::{BigInt, Num};
 use super::super::ECCurvePoint;
 use super::super::points;
 use self::points::Point;
-use self::points::affine::{AffinePoint, NewPoint};
+use self::points::affine::{AffineCoordinates, NewPoint};
 use super::super::curves::{ECCurve, ECCurveCalculation};
 
 /// filed `p` where `E: y2 = x3 + ax + b over Fp`
@@ -54,9 +54,9 @@ impl Secp256k1 {
    }
 
    #[inline]
-   fn base_point() -> AffinePoint {
+   fn base_point() -> AffineCoordinates {
       // We know this will succeed.
-      AffinePoint::try_new(Gx, Gy, 16).unwrap()
+      AffineCoordinates::try_new(Gx, Gy, 16).unwrap()
    }
 }
 
@@ -80,12 +80,12 @@ impl ECCurve for Secp256k1 {
    fn n(&self) -> BigInt { return Self::n(); }
 
    #[inline]
-   fn base_point(&self) -> AffinePoint { return Self::base_point(); }
+   fn base_point(&self) -> AffineCoordinates { return Self::base_point(); }
 }
 
 impl<P: Point> ECCurvePoint<P> for Secp256k1 {}
-// impl ECCurvePoint<point::affine::AffinePoint> for Secp256k1 {}
-// impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256k1 {}
+// impl ECCurvePoint<point::affine::AffineCoordinates> for Secp256k1 {}
+// impl ECCurvePoint<point::jacobian::JacobianCoordinates> for Secp256k1 {}
 
-impl ECCurveCalculation<points::JacobianPoint> for Secp256k1 {}
-impl ECCurveCalculation<points::StandardProjectivePoint> for Secp256k1 {}
+impl ECCurveCalculation<points::JacobianCoordinates> for Secp256k1 {}
+impl ECCurveCalculation<points::StandardProjectiveCoordinates> for Secp256k1 {}

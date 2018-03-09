@@ -1,7 +1,7 @@
 extern crate num;
 
 use self::num::BigInt;
-use ecc::prime::points::{AffinePoint, PointCalculation};
+use ecc::prime::points::{AffineCoordinates, PointCalculation};
 use std;
 
 /// Implement basic curve related functions and lookups.
@@ -24,8 +24,9 @@ pub trait ECCurve {
    /// Return the `n` value where `E: y2 = x3 + ax + b over Fp`
    fn n(&self) -> BigInt;
 
-   /// Return the `AffinePoint` representing the base point of the given curve.
-   fn base_point(&self) -> AffinePoint;
+   /// Return the `AffineCoordinates` representing the base point of the given
+   /// curve.
+   fn base_point(&self) -> AffineCoordinates;
 
    // /// decode "04.." "03.." "02.." into point.
    // fn decode_public_key(&self, String) -> Result<ECCValue, ParseError>

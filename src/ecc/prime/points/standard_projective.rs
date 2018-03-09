@@ -6,24 +6,24 @@ use super::super::curves::ECCurve;
 
 use std::fmt;
 
-use super::{AffinePoint, Point, PointCalculation, PointFrom, PointInto};
+use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 use super::super::super::ECCValue;
 
 #[derive(Debug, Clone)]
 /// Standard Projective Coordinates are used to represent elliptic curve points on prime curves
 /// `y^2 = x^3 + ax + b` where (X, Y, Z) -> (X/Z, Y/Z).
-pub struct StandardProjectivePoint {
+pub struct StandardProjectiveCoordinates {
    pub x: BigInt,
    pub y: BigInt,
    pub z: BigInt,
 }
 
-impl StandardProjectivePoint {
+impl StandardProjectiveCoordinates {
    fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
 }
 
 #[allow(non_snake_case)]
-impl<Curve> PointCalculation<Curve> for StandardProjectivePoint
+impl<Curve> PointCalculation<Curve> for StandardProjectiveCoordinates
 where
    Curve: ECCurve,
 {
@@ -72,7 +72,7 @@ where
          if V1 == V2 {
             return Self::point_doublation(curve, former);
          } else {
-            return StandardProjectivePoint::from(ECCValue::Infinity);
+            return StandardProjectiveCoordinates::from(ECCValue::Infinity);
          }
       }
 
@@ -89,7 +89,7 @@ where
       let y = (&U * (&V_ - &A) - V.modpow(&THREE, &curve.p()) * &U2).mod_floor(&curve.p());
       let z = (V.modpow(&THREE, &curve.p()) * &W).mod_floor(&curve.p());
 
-      return StandardProjectivePoint { x, y, z };
+      return StandardProjectiveCoordinates { x, y, z };
    }
 
    fn point_subtraction(curve: &Curve, former: &Self, latter: &Self) -> Self {
@@ -117,7 +117,7 @@ where
       let TWO = BigInt::from(2_u8);
 
       if point.is_point_at_infinity() {
-         return StandardProjectivePoint::from(ECCValue::Infinity);
+         return StandardProjectiveCoordinates::from(ECCValue::Infinity);
       }
 
       let W: BigInt = &curve.a() * pow(point.z.clone(), 2) + 3 * pow(point.x.clone(), 2);
@@ -136,7 +136,7 @@ where
       debug!("{}", z);
       let z = z.mod_floor(&curve.p());
 
-      return StandardProjectivePoint { x, y, z };
+      return StandardProjectiveCoordinates { x, y, z };
    }
 
    #[allow(non_snake_case)]
@@ -167,7 +167,7 @@ where
       // Algorithm 3.31
       let mut stack = NAF(k);
       debug!("\n{} {:?}", "  *  NAF(k):", stack);
-      let mut Q = StandardProjectivePoint::from(ECCValue::Infinity);
+      let mut Q = StandardProjectiveCoordinates::from(ECCValue::Infinity);
       while let Some(top) = stack.pop() {
          debug!("\n * Q: {:x}", Q);
          debug!("top: {}", top);
@@ -183,53 +183,53 @@ where
 }
 
 /* -- Formatter impls -- */
-impl fmt::Display for StandardProjectivePoint {
+impl fmt::Display for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "StandardProjectivePoint(x: {}, y: {}, z: {})",
+         "StandardProjectiveCoordinates(x: {}, y: {}, z: {})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::LowerHex for StandardProjectivePoint {
+impl fmt::LowerHex for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "StandardProjectivePoint(x: {:x}, y: {:x}, z: {:x})",
+         "StandardProjectiveCoordinates(x: {:x}, y: {:x}, z: {:x})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::UpperHex for StandardProjectivePoint {
+impl fmt::UpperHex for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "StandardProjectivePoint(x: {:X}, y: {:X}, z: {:X})",
+         "StandardProjectiveCoordinates(x: {:X}, y: {:X}, z: {:X})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::Octal for StandardProjectivePoint {
+impl fmt::Octal for StandardProjectiveCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "StandardProjectivePoint(x: {:o}, y: {:o}, z: {:o})",
+         "StandardProjectiveCoordinates(x: {:o}, y: {:o}, z: {:o})",
          self.x, self.y, self.z
       )
    }
 }
 /* -- Formatter impls -- */
 
-impl Point for StandardProjectivePoint {}
+impl Point for StandardProjectiveCoordinates {}
 
 /* -- Point Convertion impls -- */
-impl PointFrom<AffinePoint> for StandardProjectivePoint {
-   fn convert_from(point: &AffinePoint, _i: &BigInt) -> StandardProjectivePoint {
-      StandardProjectivePoint {
+impl PointFrom<AffineCoordinates> for StandardProjectiveCoordinates {
+   fn convert_from(point: &AffineCoordinates, _i: &BigInt) -> StandardProjectiveCoordinates {
+      StandardProjectiveCoordinates {
          x: point.x.clone(),
          y: point.y.clone(),
          z: BigInt::one(),
@@ -237,14 +237,17 @@ impl PointFrom<AffinePoint> for StandardProjectivePoint {
    }
 }
 
-impl PointFrom<StandardProjectivePoint> for StandardProjectivePoint {
-   fn convert_from(point: &StandardProjectivePoint, _i: &BigInt) -> StandardProjectivePoint {
+impl PointFrom<StandardProjectiveCoordinates> for StandardProjectiveCoordinates {
+   fn convert_from(
+      point: &StandardProjectiveCoordinates,
+      _i: &BigInt,
+   ) -> StandardProjectiveCoordinates {
       point.clone()
    }
 }
 
-impl PointFrom<StandardProjectivePoint> for AffinePoint {
-   fn convert_from(jacob: &StandardProjectivePoint, p: &BigInt) -> AffinePoint {
+impl PointFrom<StandardProjectiveCoordinates> for AffineCoordinates {
+   fn convert_from(jacob: &StandardProjectiveCoordinates, p: &BigInt) -> AffineCoordinates {
       // fast fail
       if jacob.z.is_zero() {
          panic!("Zero division!")
@@ -266,24 +269,24 @@ impl PointFrom<StandardProjectivePoint> for AffinePoint {
       let x = (&jacob.x * &inv_z).mod_floor(p);
       let y = (&jacob.y * &inv_z).mod_floor(p);
 
-      AffinePoint { x, y }
+      AffineCoordinates { x, y }
    }
 }
 
-impl From<ECCValue> for StandardProjectivePoint {
-   fn from(val: ECCValue) -> StandardProjectivePoint {
+impl From<ECCValue> for StandardProjectiveCoordinates {
+   fn from(val: ECCValue) -> StandardProjectiveCoordinates {
       use self::ECCValue::{Finite, Infinity};
 
       match val {
          Finite { x, y } => {
-            StandardProjectivePoint {
+            StandardProjectiveCoordinates {
                x,
                y,
                z: BigInt::one(),
             }
          },
          Infinity => {
-            StandardProjectivePoint {
+            StandardProjectiveCoordinates {
                x: BigInt::zero(),
                y: BigInt::one(),
                z: BigInt::zero(),
@@ -293,9 +296,9 @@ impl From<ECCValue> for StandardProjectivePoint {
    }
 }
 
-impl<'a> From<&'a StandardProjectivePoint> for StandardProjectivePoint {
-   fn from(val: &StandardProjectivePoint) -> StandardProjectivePoint {
-      StandardProjectivePoint {
+impl<'a> From<&'a StandardProjectiveCoordinates> for StandardProjectiveCoordinates {
+   fn from(val: &StandardProjectiveCoordinates) -> StandardProjectiveCoordinates {
+      StandardProjectiveCoordinates {
          x: val.x.clone(),
          y: val.y.clone(),
          z: val.z.clone(),
@@ -312,7 +315,7 @@ where
    fn try_new(x_str: T, y_str: T, z_str: T, base: U) -> Result<Self, Self::Error>;
 }
 
-impl NewPoint<&'static str, u32> for StandardProjectivePoint {
+impl NewPoint<&'static str, u32> for StandardProjectiveCoordinates {
    type Error = ParseBigIntError;
 
    fn try_new(s1: &str, s2: &str, s3: &str, base: u32) -> Result<Self, Self::Error> {
@@ -321,15 +324,15 @@ impl NewPoint<&'static str, u32> for StandardProjectivePoint {
       let z = BigInt::from_str_radix(s3, base);
 
       match (x, y, z) {
-         (Ok(x), Ok(y), Ok(z)) => Ok(StandardProjectivePoint { x, y, z }),
+         (Ok(x), Ok(y), Ok(z)) => Ok(StandardProjectiveCoordinates { x, y, z }),
          _ => Err(ParseBigIntError::Other),
       }
    }
 }
 
-impl PartialEq for StandardProjectivePoint {
+impl PartialEq for StandardProjectiveCoordinates {
    fn eq(&self, other: &Self) -> bool {
       let i = BigInt::zero();
-      AffinePoint::convert_from(self, &i) == other.convert_into(&i)
+      AffineCoordinates::convert_from(self, &i) == other.convert_into(&i)
    }
 }

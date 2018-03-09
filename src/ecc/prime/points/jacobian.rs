@@ -6,24 +6,24 @@ use super::super::curves::ECCurve;
 
 use std::fmt;
 
-use super::{AffinePoint, Point, PointCalculation, PointFrom, PointInto};
+use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 use super::super::super::ECCValue;
 
 #[derive(Debug, Clone)]
 /// Jacobian Coordinates are used to represent elliptic curve points on prime curves
 /// `y^2 = x^3 + ax + b`.
-pub struct JacobianPoint {
+pub struct JacobianCoordinates {
    pub x: BigInt,
    pub y: BigInt,
    pub z: BigInt,
 }
 
-impl JacobianPoint {
+impl JacobianCoordinates {
    fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
 }
 
 #[allow(non_snake_case)]
-impl<Curve> PointCalculation<Curve> for JacobianPoint
+impl<Curve> PointCalculation<Curve> for JacobianCoordinates
 where
    Curve: ECCurve,
 {
@@ -31,10 +31,10 @@ where
    fn point_addition(curve: &Curve, former: &Self, latter: &Self) -> Self {
       // fast return
       if former.is_point_at_infinity() {
-         return JacobianPoint::from(latter);
+         return JacobianCoordinates::from(latter);
       }
       if latter.is_point_at_infinity() {
-         return JacobianPoint::from(former);
+         return JacobianCoordinates::from(former);
       }
 
       let TWO = BigInt::from(2_u8);
@@ -58,7 +58,7 @@ where
       if u1 == u2 {
          debug!("s1: {:x}, s2: {:x}", s1, s2);
          if s1 != s2 {
-            return JacobianPoint::from(ECCValue::Infinity);
+            return JacobianCoordinates::from(ECCValue::Infinity);
          } else {
             return Self::point_doublation(curve, former);
          }
@@ -79,7 +79,7 @@ where
          let y = (&F * (I - &x) - &former.y * &H).mod_floor(&curve.p());
          let z = (&former.z * E).mod_floor(&curve.p());
 
-         return JacobianPoint { x, y, z };
+         return JacobianCoordinates { x, y, z };
       } else {
          info!("** Point Addition!");
 
@@ -96,7 +96,7 @@ where
          let z = &h * &former.z * &latter.z;
          let z = z.mod_floor(&curve.p());
 
-         return JacobianPoint { x, y, z };
+         return JacobianCoordinates { x, y, z };
       }
    }
 
@@ -113,7 +113,7 @@ where
    fn point_doublation(curve: &Curve, point: &Self) -> Self {
       if point.is_point_at_infinity() {
          // point.y.is_zero() || point.z.is_zero() {
-         return JacobianPoint::from(ECCValue::Infinity);
+         return JacobianCoordinates::from(ECCValue::Infinity);
       }
 
       let TWO = BigInt::from(2_u8);
@@ -133,7 +133,7 @@ where
       let y = (&D * (&B - &x) - &C).mod_floor(&curve.p());
       let z = (BigInt::from(4) * &point.y * &point.z).mod_floor(&curve.p());
 
-      return JacobianPoint { x, y, z };
+      return JacobianCoordinates { x, y, z };
    }
 
    #[allow(non_snake_case)]
@@ -164,7 +164,7 @@ where
       // Algorithm 3.31
       let mut stack = NAF(k);
       debug!("\n{} {:?}", "  *  NAF(k):", stack);
-      let mut Q = JacobianPoint::from(ECCValue::Infinity);
+      let mut Q = JacobianCoordinates::from(ECCValue::Infinity);
       while let Some(top) = stack.pop() {
          debug!("\n * Q: {:x}", Q);
          Q = Self::point_doublation(curve, &Q);
@@ -179,53 +179,53 @@ where
 }
 
 /* -- Formatter impls -- */
-impl fmt::Display for JacobianPoint {
+impl fmt::Display for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "JacobianPoint(x: {}, y: {}, z: {})",
+         "JacobianCoordinates(x: {}, y: {}, z: {})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::LowerHex for JacobianPoint {
+impl fmt::LowerHex for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "JacobianPoint(x: {:x}, y: {:x}, z: {:x})",
+         "JacobianCoordinates(x: {:x}, y: {:x}, z: {:x})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::UpperHex for JacobianPoint {
+impl fmt::UpperHex for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "JacobianPoint(x: {:X}, y: {:X}, z: {:X})",
+         "JacobianCoordinates(x: {:X}, y: {:X}, z: {:X})",
          self.x, self.y, self.z
       )
    }
 }
 
-impl fmt::Octal for JacobianPoint {
+impl fmt::Octal for JacobianCoordinates {
    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
       write!(
          f,
-         "JacobianPoint(x: {:o}, y: {:o}, z: {:o})",
+         "JacobianCoordinates(x: {:o}, y: {:o}, z: {:o})",
          self.x, self.y, self.z
       )
    }
 }
 /* -- Formatter impls -- */
 
-impl Point for JacobianPoint {}
+impl Point for JacobianCoordinates {}
 
 /* -- Point Convertion impls -- */
-impl PointFrom<AffinePoint> for JacobianPoint {
-   fn convert_from(point: &AffinePoint, _i: &BigInt) -> JacobianPoint {
-      JacobianPoint {
+impl PointFrom<AffineCoordinates> for JacobianCoordinates {
+   fn convert_from(point: &AffineCoordinates, _i: &BigInt) -> JacobianCoordinates {
+      JacobianCoordinates {
          x: point.x.clone(),
          y: point.y.clone(),
          z: BigInt::one(),
@@ -233,8 +233,8 @@ impl PointFrom<AffinePoint> for JacobianPoint {
    }
 }
 
-impl PointFrom<JacobianPoint> for AffinePoint {
-   fn convert_from(jacob: &JacobianPoint, p: &BigInt) -> AffinePoint {
+impl PointFrom<JacobianCoordinates> for AffineCoordinates {
+   fn convert_from(jacob: &JacobianCoordinates, p: &BigInt) -> AffineCoordinates {
       // fast fail
       if jacob.z.is_zero() {
          panic!("Zero division!")
@@ -257,28 +257,30 @@ impl PointFrom<JacobianPoint> for AffinePoint {
       let x = (&jacob.x * &inv_z2).mod_floor(p);
       let y = (&jacob.y * &inv_z3).mod_floor(p);
 
-      AffinePoint { x, y }
+      AffineCoordinates { x, y }
    }
 }
 
-impl PointFrom<JacobianPoint> for JacobianPoint {
-   fn convert_from(point: &JacobianPoint, _i: &BigInt) -> JacobianPoint { point.clone() }
+impl PointFrom<JacobianCoordinates> for JacobianCoordinates {
+   fn convert_from(point: &JacobianCoordinates, _i: &BigInt) -> JacobianCoordinates {
+      point.clone()
+   }
 }
 
-impl From<ECCValue> for JacobianPoint {
-   fn from(val: ECCValue) -> JacobianPoint {
+impl From<ECCValue> for JacobianCoordinates {
+   fn from(val: ECCValue) -> JacobianCoordinates {
       use self::ECCValue::{Finite, Infinity};
 
       match val {
          Finite { x, y } => {
-            JacobianPoint {
+            JacobianCoordinates {
                x,
                y,
                z: BigInt::one(),
             }
          },
          Infinity => {
-            JacobianPoint {
+            JacobianCoordinates {
                x: BigInt::one(),
                y: BigInt::one(),
                z: BigInt::zero(),
@@ -288,9 +290,9 @@ impl From<ECCValue> for JacobianPoint {
    }
 }
 
-impl<'a> From<&'a JacobianPoint> for JacobianPoint {
-   fn from(val: &JacobianPoint) -> JacobianPoint {
-      JacobianPoint {
+impl<'a> From<&'a JacobianCoordinates> for JacobianCoordinates {
+   fn from(val: &JacobianCoordinates) -> JacobianCoordinates {
+      JacobianCoordinates {
          x: val.x.clone(),
          y: val.y.clone(),
          z: val.z.clone(),
@@ -307,7 +309,7 @@ where
    fn try_new(x_str: T, y_str: T, z_str: T, base: U) -> Result<Self, Self::Error>;
 }
 
-impl NewPoint<&'static str, u32> for JacobianPoint {
+impl NewPoint<&'static str, u32> for JacobianCoordinates {
    type Error = ParseBigIntError;
 
    fn try_new(s1: &str, s2: &str, s3: &str, base: u32) -> Result<Self, Self::Error> {
@@ -316,53 +318,15 @@ impl NewPoint<&'static str, u32> for JacobianPoint {
       let z = BigInt::from_str_radix(s3, base);
 
       match (x, y, z) {
-         (Ok(x), Ok(y), Ok(z)) => Ok(JacobianPoint { x, y, z }),
+         (Ok(x), Ok(y), Ok(z)) => Ok(JacobianCoordinates { x, y, z }),
          _ => Err(ParseBigIntError::Other),
       }
    }
 }
 
-impl PartialEq for JacobianPoint {
+impl PartialEq for JacobianCoordinates {
    fn eq(&self, other: &Self) -> bool {
       let i = BigInt::zero();
-      AffinePoint::convert_from(self, &i) == other.convert_into(&i)
-   }
-}
-
-#[cfg(test)]
-#[allow(unused_qualifications)]
-mod tests {
-   use super::*;
-   use super::super::point::TryPointFrom;
-   use super::super::jacobian_point::TryPointFrom as JacobianTry;
-
-   #[test]
-   fn inf_plus_inf_is_inf() {
-      let a: AffinePoint = AffinePoint::try_from("0", "0", 16).unwrap();
-      let b: AffinePoint = AffinePoint::try_from("0", "0", 16).unwrap();
-      let r: AffinePoint = AffinePoint::try_from("0", "0", 16).unwrap();
-
-      let a = JacobianPoint::from(&a);
-      let b = JacobianPoint::from(&b);
-      let r = JacobianPoint::from(&r);
-
-      let z = &a + &b;
-
-      assert!(r == z);
-   }
-
-   #[test]
-   fn g_plus_inf_is_g() {
-      let a: JacobianPoint = JacobianTry::try_from(
-         "18905f76a53755c679fb732b7762251075ba95fc5fedb60179e730d418a9143c",
-         "8571ff1825885d85d2e88688dd21f3258b4ab8e4ba19e45cddf25357ce95560a",
-         "00000000fffffffeffffffffffffffffffffffff000000000000000000000001",
-         16,
-      ).unwrap();
-      let b = JacobianPoint::point_at_infinity();
-
-      let z = &a + &b;
-
-      assert!(a == z);
+      AffineCoordinates::convert_from(self, &i) == other.convert_into(&i)
    }
 }

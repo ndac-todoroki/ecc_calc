@@ -8,20 +8,21 @@ pub mod points;
 
 /// Functions for points on finite prime eccurves.
 /// ### Example
-/// ```
-/// let jp: JacobianPoint = curve.convert_point_to<JacobianPoint>(&point);
+///
+/// ```ignore
+/// let jp: JacobianCoordinates = curve.convert_point_to::<JacobianCoordinates>(&point); 
 /// ```
 pub trait ECCurvePoint<P: points::Point>: ECCurve {
    fn point_is_on_curve(&self, point: &P) -> bool
    where
-      points::AffinePoint: points::PointFrom<P>,
+      points::AffineCoordinates: points::PointFrom<P>,
    {
-      use self::points::AffinePoint;
+      use self::points::AffineCoordinates;
 
-      let AffinePoint {
+      let AffineCoordinates {
          x: point_x,
          y: point_y,
-      } = self.convert_point_to::<AffinePoint>(point).unwrap();
+      } = self.convert_point_to::<AffineCoordinates>(point).unwrap();
 
       #[allow(non_snake_case)]
       let TWO = BigInt::from(2_u8);

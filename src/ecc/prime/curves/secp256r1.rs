@@ -5,7 +5,7 @@ use self::num::{BigInt, Num};
 use super::super::ECCurvePoint;
 use super::super::points;
 use self::points::Point;
-use self::points::affine::{AffinePoint, NewPoint};
+use self::points::affine::{AffineCoordinates, NewPoint};
 use super::super::curves::{ECCurve, ECCurveCalculation};
 
 /// filed `p` where `E: y2 = x3 + ax + b over Fp`
@@ -54,9 +54,9 @@ impl Secp256r1 {
    }
 
    #[inline]
-   fn base_point() -> AffinePoint {
+   fn base_point() -> AffineCoordinates {
       // We know this will succeed.
-      AffinePoint::try_new(Gx, Gy, 16).unwrap()
+      AffineCoordinates::try_new(Gx, Gy, 16).unwrap()
    }
 }
 
@@ -80,38 +80,12 @@ impl ECCurve for Secp256r1 {
    fn n(&self) -> BigInt { return Self::n(); }
 
    #[inline]
-   fn base_point(&self) -> AffinePoint { return Self::base_point(); }
+   fn base_point(&self) -> AffineCoordinates { return Self::base_point(); }
 }
 
 impl<P: Point> ECCurvePoint<P> for Secp256r1 {}
-// impl ECCurvePoint<point::affine::AffinePoint> for Secp256r1 {}
-// impl ECCurvePoint<point::jacobian::JacobianPoint> for Secp256r1 {}
+// impl ECCurvePoint<point::affine::AffineCoordinates> for Secp256r1 {}
+// impl ECCurvePoint<point::jacobian::JacobianCoordinates> for Secp256r1 {}
 
-impl ECCurveCalculation<points::JacobianPoint> for Secp256r1 {}
-impl ECCurveCalculation<points::StandardProjectivePoint> for Secp256r1 {}
-
-#[cfg(test)]
-#[allow(unused_qualifications)]
-mod tests {
-   use super::Secp256r1;
-   use ecc::{ECCurve, ECCurvePoint, ECCurvePointChecker};
-   use super::super::super::jacobian_point::JacobianPoint;
-   use super::super::super::point::{AffinePoint, TryPointFrom};
-
-   #[test]
-   #[should_panic]
-   fn create_infinity() {
-      let curve = Secp256r1::new();
-      let a: AffinePoint = curve.try_create_point_at("0", "0", 16).unwrap();
-   }
-
-   #[test]
-   fn check_g() {
-      let curve = Secp256r1::new();
-      let point = curve.base_point();
-
-      println!("{:x}", JacobianPoint::from(&point).x);
-
-      curve.verify_point(point).unwrap();
-   }
-}
+impl ECCurveCalculation<points::JacobianCoordinates> for Secp256r1 {}
+impl ECCurveCalculation<points::StandardProjectiveCoordinates> for Secp256r1 {}
