@@ -19,7 +19,7 @@ pub struct StandardProjectiveCoordinates {
 }
 
 impl StandardProjectiveCoordinates {
-   fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
+   pub fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
 }
 
 #[allow(non_snake_case)]
