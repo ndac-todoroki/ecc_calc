@@ -22,23 +22,23 @@ pub enum ECCValueRes<T> {
 }
 
 impl ECCValue {
-   pub fn to_uncompressed(&self) -> Result<String, InfinityError> {
+   pub fn to_uncompressed(&self) -> String {
       match self {
-         &ECCValue::Finite { ref x, ref y } => Ok(format!("04{:064x}{:064x}", x, y)),
-         &ECCValue::Infinity => Err(InfinityError),
+         &ECCValue::Finite { ref x, ref y } => format!("04{:064x}{:064x}", x, y),
+         &ECCValue::Infinity => format!("00{:064x}", 0),
       }
    }
 
-   pub fn to_compressed(&self) -> Result<String, InfinityError> {
+   pub fn to_compressed(&self) -> String {
       match self {
          &ECCValue::Finite { ref x, ref y } => {
-            Ok(if y.is_even() {
+            if y.is_even() {
                format!("02{:064x}", x)
             } else {
                format!("03{:064x}", x)
-            })
+            }
          },
-         &ECCValue::Infinity => Err(InfinityError),
+         &ECCValue::Infinity => format!("00{:064x}", 0),
       }
    }
 }
