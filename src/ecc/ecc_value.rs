@@ -1,6 +1,5 @@
 extern crate num;
 use self::num::{BigInt, Integer};
-use super::infinity_error::InfinityError;
 
 /// Value wil be defined as
 /// - a point on curve
