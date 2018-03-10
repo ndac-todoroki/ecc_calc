@@ -1,6 +1,6 @@
 [package]
 name = "ecc_calc"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Todoroki <todoroki.auone@gmail.com>"]
 
 [dependencies]
