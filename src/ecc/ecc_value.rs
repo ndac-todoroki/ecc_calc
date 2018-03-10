@@ -24,7 +24,7 @@ pub enum ECCValueRes<T> {
 impl ECCValue {
    pub fn to_uncompressed(&self) -> Result<String, InfinityError> {
       match self {
-         &ECCValue::Finite { ref x, ref y } => Ok(format!("04{:x}{:x}", x, y)),
+         &ECCValue::Finite { ref x, ref y } => Ok(format!("04{:064x}{:064x}", x, y)),
          &ECCValue::Infinity => Err(InfinityError),
       }
    }
@@ -33,32 +33,12 @@ impl ECCValue {
       match self {
          &ECCValue::Finite { ref x, ref y } => {
             Ok(if y.is_even() {
-               format!("02{:x}", x)
+               format!("02{:064x}", x)
             } else {
-               format!("03{:x}", x)
+               format!("03{:064x}", x)
             })
          },
          &ECCValue::Infinity => Err(InfinityError),
       }
    }
 }
-
-// impl<S> From<S> for ECCValue
-// where
-//    S: Into<String> + Copy,
-// {
-//    fn from(s: S) -> Self {
-//       let ls = s.into().to_lowercase();
-//       if ls == "inf" || ls == "infinity" {
-//          ECCValue::Infinity
-//       } else {
-//          let first2bits = &(s.into()[..2]);
-//          match first2bits {
-//             "02" => ECCValue::Infinity,
-//             "03" => ECCValue::Infinity,
-//             "04" => ECCValue::Infinity,
-// _ => panic!("should be inf or 02.. or 03.. or 04.., but wasn't
-// any of them"),          }
-//       }
-//    }
-// }
