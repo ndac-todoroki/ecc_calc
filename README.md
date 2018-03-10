@@ -1,6 +1,11 @@
 # ECC Calculator
+This is a experimental library that do calculation on Elliptic Curves.
+
+Do NOT take this as a production ready library.  
+There are still many bugs and planned changes, and calculations are not modified to be fast.
+
 ## How to test
-There some tests at `main.rs`. You can test them by doing `cargo test`.  
+There some tests (but not enough). You can test them by doing `cargo test`.  
 Those tests will eventially move to individual modules.
 
 ## Required Rust version
@@ -40,10 +45,20 @@ match point_g {
     println!(
         "2G= {:064x}",
         curve
-            .convert_point_to::<AffineCoordinates>(&point_2G)
+            .convert_point_to::<AffineCoordinates>(&point_2g)
             .unwrap()
     )
     },
     _ => (),  // Affine to Others will always work.
 }
+
+let point_g: AffineCoordinates = curve.base_point();
+let val: ECCValue = point_g
+      .unwrap()
+      .into();
+println!("{}", val.to_compressed());  // 03xxxxxxxxx...
 ```
+
+## Contributing
+Contributions are very, very welcomed. This is my first Rust program.  
+There are some planned changes (maybe in the issues), but any issues/PRs are welcomed!
