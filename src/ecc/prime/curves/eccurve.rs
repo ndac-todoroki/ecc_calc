@@ -33,7 +33,7 @@ pub trait ECCurve {
    // /// decode "04.." "03.." "02.." into point.
    // fn decode_public_key(&self, String) -> Result<ECCValue, ParseError>
 
-   fn parse_public_key<S: Into<String> + Copy>(
+   fn parse_public_key<S: Into<String>>(
       &self,
       key: S,
    ) -> Result<ECCValue, errors::PublicKeyParseError> {
@@ -79,8 +79,8 @@ pub trait ECCurve {
             Ok(val)
          },
          "04" => {
-            let x = BigInt::from_str_radix(&key_string[2..34], 16).unwrap();
-            let y = BigInt::from_str_radix(&key_string[34..], 16).unwrap();
+            let x = BigInt::from_str_radix(&key_string[2..66], 16).unwrap();
+            let y = BigInt::from_str_radix(&key_string[66..], 16).unwrap();
             Ok(ECCValue::Finite { x, y })
          },
          _ => Err(errors::PublicKeyParseError),
