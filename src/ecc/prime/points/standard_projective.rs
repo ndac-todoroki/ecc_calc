@@ -1,13 +1,13 @@
 extern crate num;
 
-use self::num::{pow, BigInt, Integer, Num, One, ToPrimitive, Zero};
 use self::num::bigint::ParseBigIntError;
+use self::num::{pow, BigInt, Integer, Num, One, ToPrimitive, Zero};
 use super::super::curves::ECCurve;
 
 use std::fmt;
 
-use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 use super::super::super::ECCValue;
+use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 
 #[derive(Debug, Clone)]
 /// Standard Projective Coordinates are used to represent elliptic curve points on prime curves
@@ -19,7 +19,9 @@ pub struct StandardProjectiveCoordinates {
 }
 
 impl StandardProjectiveCoordinates {
-   pub fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
+   pub fn is_point_at_infinity(&self) -> bool {
+      self.z.is_zero()
+   }
 }
 
 #[allow(non_snake_case)]
@@ -149,7 +151,7 @@ where
                let mod4 = (k.mod_floor(&BigInt::from(4))).to_i64().unwrap();
                let ki = 2 - (mod4 as i8);
                assert!(
-                  (-1..2).contains(ki),
+                  (-1..2).contains(&ki),
                   "NAF: Unexpected Ki number error: {}",
                   ki
                );
@@ -290,19 +292,15 @@ impl From<ECCValue> for StandardProjectiveCoordinates {
       use self::ECCValue::{Finite, Infinity};
 
       match val {
-         Finite { x, y } => {
-            StandardProjectiveCoordinates {
-               x,
-               y,
-               z: BigInt::one(),
-            }
+         Finite { x, y } => StandardProjectiveCoordinates {
+            x,
+            y,
+            z: BigInt::one(),
          },
-         Infinity => {
-            StandardProjectiveCoordinates {
-               x: BigInt::zero(),
-               y: BigInt::one(),
-               z: BigInt::zero(),
-            }
+         Infinity => StandardProjectiveCoordinates {
+            x: BigInt::zero(),
+            y: BigInt::one(),
+            z: BigInt::zero(),
          },
       }
    }

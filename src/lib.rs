@@ -1,4 +1,3 @@
-#![feature(try_from)]
 #![feature(range_contains)]
 
 #[macro_use]
@@ -16,10 +15,10 @@ mod overall {
 
    use self::num::BigInt;
 
+   use super::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256k1, Secp256r1};
    use super::ecc::prime::points::affine::{AffineCoordinates, NewPoint as NewAffine};
    use super::ecc::prime::points::standard_projective::StandardProjectiveCoordinates;
    use super::ecc::prime::ECCurvePoint;
-   use super::ecc::prime::curves::{ECCurve, ECCurveCalculation, Secp256k1, Secp256r1};
 
    // #[test]
    fn create_affine_point() -> AffineCoordinates {
@@ -27,11 +26,14 @@ mod overall {
          "6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296",
          "4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5",
          16,
-      ).unwrap();
+      )
+      .unwrap();
    }
 
    #[test]
-   fn affine_coordinate_creation() { create_affine_point(); }
+   fn affine_coordinate_creation() {
+      create_affine_point();
+   }
 
    #[test]
    fn output_formatter() {
@@ -87,7 +89,7 @@ mod overall {
                   .convert_point_to::<AffineCoordinates>(&point_2G)
                   .unwrap()
             )
-         },
+         }
          _ => (),
       }
    }
@@ -109,7 +111,7 @@ mod overall {
                   .convert_point_to::<AffineCoordinates>(&point_2G)
                   .unwrap()
             )
-         },
+         }
          _ => (),
       }
    }
@@ -132,7 +134,7 @@ mod overall {
                   .convert_point_to::<AffineCoordinates>(&point_R)
                   .unwrap()
             );
-         },
+         }
          _ => (),
       }
    }
@@ -155,7 +157,7 @@ mod overall {
                   .convert_point_to::<AffineCoordinates>(&point_R)
                   .unwrap()
             );
-         },
+         }
          _ => (),
       }
    }

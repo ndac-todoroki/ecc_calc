@@ -1,13 +1,13 @@
 extern crate num;
 
-use self::num::{BigInt, Integer, Num, One, ToPrimitive, Zero};
 use self::num::bigint::ParseBigIntError;
+use self::num::{BigInt, Integer, Num, One, ToPrimitive, Zero};
 use super::super::curves::ECCurve;
 
 use std::fmt;
 
-use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 use super::super::super::ECCValue;
+use super::{AffineCoordinates, Point, PointCalculation, PointFrom, PointInto};
 
 #[derive(Debug, Clone)]
 /// Jacobian Coordinates are used to represent elliptic curve points on prime curves
@@ -19,7 +19,9 @@ pub struct JacobianCoordinates {
 }
 
 impl JacobianCoordinates {
-   fn is_point_at_infinity(&self) -> bool { self.z.is_zero() }
+   fn is_point_at_infinity(&self) -> bool {
+      self.z.is_zero()
+   }
 }
 
 #[allow(non_snake_case)]
@@ -86,7 +88,8 @@ where
          let h = (&u1 - &u2).mod_floor(&curve.p());
          let r = (&s2 - &s1).mod_floor(&curve.p());
 
-         let x = r.modpow(&TWO, &curve.p()) - h.modpow(&THREE, &curve.p())
+         let x = r.modpow(&TWO, &curve.p())
+            - h.modpow(&THREE, &curve.p())
             - 2_usize * &u1 * h.modpow(&TWO, &curve.p());
          let x = x.mod_floor(&curve.p());
 
@@ -124,7 +127,7 @@ where
       let C = (BigInt::from(8) * A.modpow(&TWO, &curve.p())).mod_floor(&curve.p());
       let D = (BigInt::from(3) * point.x.modpow(&TWO, &curve.p())
          + curve.a() * point.z.modpow(&FOUR, &curve.p()))
-         .mod_floor(&curve.p());
+      .mod_floor(&curve.p());
 
       info!("** Point Doubling!");
       debug!("\n * A: {}, \n * B: {}, \n * C: {}, \n * D: {}", A, B, C, D);
@@ -146,7 +149,7 @@ where
                let mod4 = (k.mod_floor(&BigInt::from(4))).to_i64().unwrap();
                let ki = 2 - (mod4 as i8);
                assert!(
-                  (-1..2).contains(ki),
+                  (-1..2).contains(&ki),
                   "NAF: Unexpected Ki number error: {}",
                   ki
                );
@@ -284,19 +287,15 @@ impl From<ECCValue> for JacobianCoordinates {
       use self::ECCValue::{Finite, Infinity};
 
       match val {
-         Finite { x, y } => {
-            JacobianCoordinates {
-               x,
-               y,
-               z: BigInt::one(),
-            }
+         Finite { x, y } => JacobianCoordinates {
+            x,
+            y,
+            z: BigInt::one(),
          },
-         Infinity => {
-            JacobianCoordinates {
-               x: BigInt::one(),
-               y: BigInt::one(),
-               z: BigInt::zero(),
-            }
+         Infinity => JacobianCoordinates {
+            x: BigInt::one(),
+            y: BigInt::one(),
+            z: BigInt::zero(),
          },
       }
    }
