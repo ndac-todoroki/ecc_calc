@@ -1,4 +1,3 @@
-#![feature(try_from)]
 #![feature(range_contains)]
 
 #[macro_use]
