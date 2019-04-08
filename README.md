@@ -9,8 +9,9 @@ There some tests (but not enough). You can test them by doing `cargo test`.
 Those tests will eventially move to individual modules.
 
 ## Required Rust version
-Will work with `rustc 1.25.0-nightly`. Only `nightly` versions will work.  
-`rustup install nightly` if you don't have a nightly version.
+Will work with/after `rustc 1.34.0-nightly`. Only `nightly` versions will work, until `range_contains` is stabilized.  
+Do `rustup install nightly` if you don't have a nightly version.  
+Do `rustup override set nightly` to set nightly in the current directory.
 
 ## Examples
 
